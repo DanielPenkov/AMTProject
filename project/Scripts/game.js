@@ -2,7 +2,6 @@
 var done = false;
 var canvas;
 var ctx;
-// holds all our pictures
 var pictures = [];
 var WIDTH;
 var HEIGHT;
@@ -14,41 +13,50 @@ var isClicked;
 var W = 400; // Window's width
 var H = 400; // Window's height
 startBtn = {}; // Start button object
+nextBtn = {};
 var x;
 var y;
 var w;
 var h;
+var points = 0;
 var seconds;
 var miliSeconds;
 var timeBoard;
+var scoreBoard;
 mouse = {};
 var canvasValid = false;
 var mySel;
-// The selection color and width. Right now we have a red selection with a small width
 var mySelColor = '#CC0000';
 var mySelWidth = 2;
-// we use a fake canvas to draw individual shapes for selection testing
 var ghostcanvas;
 var gctx; // fake canvas context
-// since we can drag from anywhere in a node
-// instead of just its x/y corner, we need to save
-// the offset of the mouse when we start dragging.
 var offsetx, offsety;
-// Padding and border style widths for mouse offsets
 var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
-// initialize our canvas, add a ghost canvas, set draw loop
-// then add everything we want to intially exist on the canvas
+var img_source;
+var level;
+level = 1;
 
-canvas = document.getElementById('canvas');
-HEIGHT = canvas.height;
-WIDTH = canvas.width;
-ctx = canvas.getContext('2d');
-ghostcanvas = document.createElement('canvas');
-ghostcanvas.height = HEIGHT;
-ghostcanvas.width = WIDTH;
-gctx = ghostcanvas.getContext('2d');
-canvas.addEventListener("mousemove", trackPosition, true);
-canvas.addEventListener("mousedown", btnClick, true);
+
+function loadCanvas() {
+
+    canvas = document.getElementById('canvas');
+    HEIGHT = canvas.height;
+    WIDTH = canvas.width;
+    ctx = canvas.getContext('2d');
+    ghostcanvas = document.createElement('canvas');
+    ghostcanvas.height = HEIGHT;
+    ghostcanvas.width = WIDTH;
+    gctx = ghostcanvas.getContext('2d');
+    canvas.addEventListener("mousemove", trackPosition, true);
+    canvas.addEventListener("mousedown", btnClick, true);
+    startBtn.draw();
+}
+
+function setImg(response) {
+
+    img_source = response;
+
+}
 
 startBtn = {
     w: 100,
@@ -56,7 +64,6 @@ startBtn = {
     x: W / 2 - 50,
     y: H / 2 - 25,
     draw: function () {
-        console.log("tuka");
         ctx.strokeStyle = "black";
         ctx.lineWidth = "2";
         ctx.strokeRect(this.x, this.y, this.w, this.h);
@@ -66,13 +73,26 @@ startBtn = {
         ctx.textBaseline = "middle";
         ctx.fillStlye = "black";
         ctx.fillText("Start", W / 2, H / 2);
+        GetImage();
     }
 
 };
 
+
+
+
+
 function loadTimeBoard(nameTextBoxId) {
     var nameTextBoxElm = document.getElementById(nameTextBoxId);
     timeBoard = nameTextBoxElm;
+
+}
+
+
+function loadScoreBoard(nameTextBoxId) {
+
+    var nameTextBoxElm = document.getElementById(nameTextBoxId);
+    scoreBoard = nameTextBoxElm;
 
 }
 
@@ -134,12 +154,14 @@ function init() {
 
     // add an orange rectangle
 
-    addPicture(0, 0, 80, 80, 'Content/images/5108.jpg', 0, 0);
 
-    addPicture(100, 100, 80, 80, 'Content/images/11.jpg', 100, 100);
+   
+    addPicture(0, 0, 80, 80, img_source[0], 0, 0);
 
-    addPicture(200, 0, 80, 80, 'Content/images/12.jpg', 200, 0);
-    addPicture(200, 200, 80, 80, 'Content/images/13.jpg', 200, 200);
+    addPicture(100, 100, 80, 80, img_source[1], 100, 100);
+
+    addPicture(200, 0, 80, 80, img_source[2], 200, 0);
+    addPicture(200, 200, 80, 80, img_source[3], 200, 200);
 
     demo = true;
 
@@ -160,19 +182,19 @@ function init() {
         clear(ctx);
         pictures = [];
 
-        addPicture(310, 0, 80, 80, 'Content/images/5108.jpg', 0, 0);
+        addPicture(310, 0, 80, 80, img_source[0], 0, 0);
 
-        addPicture(310, 100, 80, 80, 'Content/images/11.jpg', 100, 100);
+        addPicture(310, 100, 80, 80, img_source[1], 100, 100);
 
-        addPicture(310, 200, 80, 80, 'Content/images/12.jpg', 200, 0);
-        addPicture(310, 300, 80, 80, 'Content/images/13.jpg', 200, 200);
+        addPicture(310, 200, 80, 80, img_source[2], 200, 0);
+        addPicture(310, 300, 80, 80, img_source[3], 200, 200);
+        countTime();
 
     }, 3000);
 
     seconds = 0;
     miliSeconds = 0;
-
-    countTime();
+    
 
 
 }
@@ -367,8 +389,7 @@ function invalidate() {
     canvasValid = false;
 }
 
-// Sets mx,my to the mouse position relative to the canvas
-// unfortunately this can be tricky, we have to worry about padding and borders
+
 function getMouse(e) {
     var element = canvas, offsetX = 0, offsetY = 0;
 
@@ -402,60 +423,82 @@ function check() {
         for (var i = l - 1; i >= 0; i--) {
 
             if ((pictures[i].x > pictures[i].originalX + 20 || pictures[i].x < pictures[i].originalX - 20) || (pictures[i].y > pictures[i].originalY + 20 || pictures[i].y < pictures[i].originalY - 20)) {
-            } else {
-
+            }
+            else {
                 pictures[i].onRightPosition = true;
                 onRightPositionArray.push(pictures[i]);
-
             }
-
-            console.log(pictures[i].onRightPosition);
 
         }
 
-
-        console.log(pictures.length);
-        console.log(onRightPositionArray.length);
 
         if (onRightPositionArray.length == l) {
 
             clear(ctx);
             done = true;
+            SaveScores();
+            nextBtn = {
 
-            ctx.fillStyle = "blue";
-            ctx.font = "bold 16px Arial";
-            ctx.fillText("DONE", 100, 100);
+               
+                w: 100,
+                h: 50,
+                x: W / 2 - 50,
+                y: H / 2 - 25,
+                draw: function () {
+                    ctx.strokeStyle = "black";
+                    ctx.lineWidth = "2";
+                    ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+                    ctx.font = "18px Arial, sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStlye = "black";
+                    ctx.fillText("Next", W / 2, H / 2);
+                 
+                }
+
+
+            };
+
+
+            nextBtn.draw();
+
         }
 
     }
 }
 
 window.setInterval(function () {
-    check();
+
+    if (done == false) {
+        check();
+    }
+
 }, 1000);
 
 
 function btnClick(e) {
 
-
-    // Variables for storing mouse position on click
     var mx = e.pageX,
             my = e.pageY;
 
     // Click start button
-    if (mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
+    //if (mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
 
-        // Delete the start button after clicking it
-        startBtn = {};
-    }
+    //    // Delete the start button after clicking it
+    //    startBtn = {};
+    //}
 
     if (startBtn.x !== undefined) {
-        console.log("kur");
         startBtn = {};
-        init()
-
+        init();
     }
-
+    if (nextBtn.x !== undefined) {
+        nextBtn = {};
+        pictures = [];
+        done = false;
+        init();
+    }
 }
 
 function updateTimeBoard() {
@@ -470,7 +513,32 @@ function updateTimeBoard() {
         miliSeconds += 1;
     }
 
-    timeBoard.innerHTML = "Time : " + seconds + ' : ' + miliSeconds;
+    timeBoard.innerHTML =seconds + ' : ' + miliSeconds;
+};
+
+
+function updateScoreBoard() {
+
+    if(level===1) {
+
+        points += 10;
+        level += 1;
+        console.log("vliza v 1");
+    }
+
+    else if(level===2) {
+        points += 15;
+        level += 1;
+        console.log("vliza v 2");
+    }
+
+    else if(level===3) {
+        points += 20;
+        level += 1;
+        console.log("vliza v 3");
+    }
+
+    scoreBoard.innerHTML = points;
 };
 
 

@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="DbModelStoreContainer" CdmEntityContainer="DbContextGame">
+    <EntitySetMapping Name="Achevements">
+      <EntityTypeMapping TypeName="DbModel.Achevement">
+        <MappingFragment StoreEntitySet="Achevements">
+          <ScalarProperty Name="user_id" ColumnName="user_id" />
+          <ScalarProperty Name="badge_id" ColumnName="badge_id" />
+          <ScalarProperty Name="date" ColumnName="date" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="AspNetUsers">
+      <EntityTypeMapping TypeName="DbModel.AspNetUser">
+        <MappingFragment StoreEntitySet="AspNetUsers">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
+          <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+          <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+          <ScalarProperty Name="Discriminator" ColumnName="Discriminator" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Badges">
+      <EntityTypeMapping TypeName="DbModel.Badge">
+        <MappingFragment StoreEntitySet="Badges">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="img_src" ColumnName="img_src" />
+          <ScalarProperty Name="description" ColumnName="description" />
+          <ScalarProperty Name="name" ColumnName="name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Images">
+      <EntityTypeMapping TypeName="DbModel.Image">
+        <MappingFragment StoreEntitySet="Images">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="src" ColumnName="src" />
+          <ScalarProperty Name="type_id" ColumnName="type_id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Levels">
+      <EntityTypeMapping TypeName="DbModel.Level">
+        <MappingFragment StoreEntitySet="Levels">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="type_img" ColumnName="type_img" />
+          <ScalarProperty Name="score" ColumnName="score" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Scores">
+      <EntityTypeMapping TypeName="DbModel.Score">
+        <MappingFragment StoreEntitySet="Scores">
+          <ScalarProperty Name="user_id" ColumnName="user_id" />
+          <ScalarProperty Name="date_scored" ColumnName="date_scored" />
+          <ScalarProperty Name="score1" ColumnName="score" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Type_Images">
+      <EntityTypeMapping TypeName="DbModel.Type_Images">
+        <MappingFragment StoreEntitySet="Type_Images">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="name" ColumnName="name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

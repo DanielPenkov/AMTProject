@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="DbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Achevements">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="badge_id" />
+          </Key>
+          <Property Name="user_id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="badge_id" Type="int" Nullable="false" />
+          <Property Name="date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="AspNetUsers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar(max)" />
+          <Property Name="PasswordHash" Type="nvarchar(max)" />
+          <Property Name="SecurityStamp" Type="nvarchar(max)" />
+          <Property Name="Discriminator" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Email" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Badges">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="img_src" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="description" Type="varchar" MaxLength="200" />
+          <Property Name="name" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="Images">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="src" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="type_id" Type="int" />
+        </EntityType>
+        <EntityType Name="Levels">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="type_img" Type="int" Nullable="false" />
+          <Property Name="score" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Scores">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="date_scored" />
+          </Key>
+          <Property Name="user_id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="date_scored" Type="datetime" Nullable="false" />
+          <Property Name="score" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Type_Images">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Achevements_AspNetUsers">
+          <End Role="Badges" Type="Self.Badges" Multiplicity="1" />
+          <End Role="Achevements" Type="Self.Achevements" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Badges">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Achevements">
+              <PropertyRef Name="badge_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Achevements_AspNetUsers1">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="Achevements" Type="Self.Achevements" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Achevements">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Images_Type_Images">
+          <End Role="Type_Images" Type="Self.Type_Images" Multiplicity="0..1" />
+          <End Role="Images" Type="Self.Images" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type_Images">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Images">
+              <PropertyRef Name="type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Levels_Type_Images">
+          <End Role="Type_Images" Type="Self.Type_Images" Multiplicity="1" />
+          <End Role="Levels" Type="Self.Levels" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type_Images">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Levels">
+              <PropertyRef Name="type_img" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Scores_AspNetUsers">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="Scores" Type="Self.Scores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Scores">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DbModelStoreContainer">
+          <EntitySet Name="Achevements" EntityType="Self.Achevements" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Badges" EntityType="Self.Badges" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Images" EntityType="Self.Images" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Levels" EntityType="Self.Levels" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Scores" EntityType="Self.Scores" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Type_Images" EntityType="Self.Type_Images" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Achevements_AspNetUsers" Association="Self.FK_Achevements_AspNetUsers">
+            <End Role="Badges" EntitySet="Badges" />
+            <End Role="Achevements" EntitySet="Achevements" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Achevements_AspNetUsers1" Association="Self.FK_Achevements_AspNetUsers1">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Achevements" EntitySet="Achevements" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Images_Type_Images" Association="Self.FK_Images_Type_Images">
+            <End Role="Type_Images" EntitySet="Type_Images" />
+            <End Role="Images" EntitySet="Images" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Levels_Type_Images" Association="Self.FK_Levels_Type_Images">
+            <End Role="Type_Images" EntitySet="Type_Images" />
+            <End Role="Levels" EntitySet="Levels" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Scores_AspNetUsers" Association="Self.FK_Scores_AspNetUsers">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Scores" EntitySet="Scores" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Achevement">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="badge_id" />
+          </Key>
+          <Property Name="user_id" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="badge_id" Type="Int32" Nullable="false" />
+          <Property Name="date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Badge" Relationship="Self.FK_Achevements_AspNetUsers" FromRole="Achevements" ToRole="Badges" />
+          <NavigationProperty Name="AspNetUser" Relationship="Self.FK_Achevements_AspNetUsers1" FromRole="Achevements" ToRole="AspNetUsers" />
+        </EntityType>
+        <EntityType Name="AspNetUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PasswordHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SecurityStamp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Discriminator" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Achevements" Relationship="Self.FK_Achevements_AspNetUsers1" FromRole="AspNetUsers" ToRole="Achevements" />
+          <NavigationProperty Name="Scores" Relationship="Self.FK_Scores_AspNetUsers" FromRole="AspNetUsers" ToRole="Scores" />
+        </EntityType>
+        <EntityType Name="Badge">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="img_src" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Achevements" Relationship="Self.FK_Achevements_AspNetUsers" FromRole="Badges" ToRole="Achevements" />
+        </EntityType>
+        <EntityType Name="Image">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="src" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="type_id" Type="Int32" />
+          <NavigationProperty Name="Type_Images" Relationship="Self.FK_Images_Type_Images" FromRole="Images" ToRole="Type_Images" />
+        </EntityType>
+        <EntityType Name="Level">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="type_img" Type="Int32" Nullable="false" />
+          <Property Name="score" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Type_Images" Relationship="Self.FK_Levels_Type_Images" FromRole="Levels" ToRole="Type_Images" />
+        </EntityType>
+        <EntityType Name="Score">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="date_scored" />
+          </Key>
+          <Property Name="user_id" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="date_scored" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="score1" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="AspNetUser" Relationship="Self.FK_Scores_AspNetUsers" FromRole="Scores" ToRole="AspNetUsers" />
+        </EntityType>
+        <EntityType Name="Type_Images">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Images" Relationship="Self.FK_Images_Type_Images" FromRole="Type_Images" ToRole="Images" />
+          <NavigationProperty Name="Levels" Relationship="Self.FK_Levels_Type_Images" FromRole="Type_Images" ToRole="Levels" />
+        </EntityType>
+        <Association Name="FK_Achevements_AspNetUsers">
+          <End Role="Badges" Type="Self.Badge" Multiplicity="1" />
+          <End Role="Achevements" Type="Self.Achevement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Badges">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Achevements">
+              <PropertyRef Name="badge_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Achevements_AspNetUsers1">
+          <End Role="AspNetUsers" Type="Self.AspNetUser" Multiplicity="1" />
+          <End Role="Achevements" Type="Self.Achevement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Achevements">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Scores_AspNetUsers">
+          <End Role="AspNetUsers" Type="Self.AspNetUser" Multiplicity="1" />
+          <End Role="Scores" Type="Self.Score" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Scores">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Images_Type_Images">
+          <End Role="Type_Images" Type="Self.Type_Images" Multiplicity="0..1" />
+          <End Role="Images" Type="Self.Image" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type_Images">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Images">
+              <PropertyRef Name="type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Levels_Type_Images">
+          <End Role="Type_Images" Type="Self.Type_Images" Multiplicity="1" />
+          <End Role="Levels" Type="Self.Level" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type_Images">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Levels">
+              <PropertyRef Name="type_img" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DbContextGame" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Achevements" EntityType="Self.Achevement" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUser" />
+          <EntitySet Name="Badges" EntityType="Self.Badge" />
+          <EntitySet Name="Images" EntityType="Self.Image" />
+          <EntitySet Name="Levels" EntityType="Self.Level" />
+          <EntitySet Name="Scores" EntityType="Self.Score" />
+          <EntitySet Name="Type_Images" EntityType="Self.Type_Images" />
+          <AssociationSet Name="FK_Achevements_AspNetUsers" Association="Self.FK_Achevements_AspNetUsers">
+            <End Role="Badges" EntitySet="Badges" />
+            <End Role="Achevements" EntitySet="Achevements" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Achevements_AspNetUsers1" Association="Self.FK_Achevements_AspNetUsers1">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Achevements" EntitySet="Achevements" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Scores_AspNetUsers" Association="Self.FK_Scores_AspNetUsers">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Scores" EntitySet="Scores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Images_Type_Images" Association="Self.FK_Images_Type_Images">
+            <End Role="Type_Images" EntitySet="Type_Images" />
+            <End Role="Images" EntitySet="Images" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Levels_Type_Images" Association="Self.FK_Levels_Type_Images">
+            <End Role="Type_Images" EntitySet="Type_Images" />
+            <End Role="Levels" EntitySet="Levels" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DbModelStoreContainer" CdmEntityContainer="DbContextGame">
+          <EntitySetMapping Name="Achevements">
+            <EntityTypeMapping TypeName="DbModel.Achevement">
+              <MappingFragment StoreEntitySet="Achevements">
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="badge_id" ColumnName="badge_id" />
+                <ScalarProperty Name="date" ColumnName="date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AspNetUsers">
+            <EntityTypeMapping TypeName="DbModel.AspNetUser">
+              <MappingFragment StoreEntitySet="AspNetUsers">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="Discriminator" ColumnName="Discriminator" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Badges">
+            <EntityTypeMapping TypeName="DbModel.Badge">
+              <MappingFragment StoreEntitySet="Badges">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="img_src" ColumnName="img_src" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Images">
+            <EntityTypeMapping TypeName="DbModel.Image">
+              <MappingFragment StoreEntitySet="Images">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="src" ColumnName="src" />
+                <ScalarProperty Name="type_id" ColumnName="type_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Levels">
+            <EntityTypeMapping TypeName="DbModel.Level">
+              <MappingFragment StoreEntitySet="Levels">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="type_img" ColumnName="type_img" />
+                <ScalarProperty Name="score" ColumnName="score" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Scores">
+            <EntityTypeMapping TypeName="DbModel.Score">
+              <MappingFragment StoreEntitySet="Scores">
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="date_scored" ColumnName="date_scored" />
+                <ScalarProperty Name="score1" ColumnName="score" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Type_Images">
+            <EntityTypeMapping TypeName="DbModel.Type_Images">
+              <MappingFragment StoreEntitySet="Type_Images">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

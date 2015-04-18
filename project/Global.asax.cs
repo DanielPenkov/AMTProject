@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Optimization;
@@ -16,6 +17,8 @@ namespace project
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        //    Database.SetInitializer(new DropCreateDatabaseIfModelChanges<DbContextGame>());
+
         }
     }
 }
