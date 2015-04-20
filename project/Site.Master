@@ -15,7 +15,6 @@
 			}
 			#canvas {
 				border: solid 1px black;
-				margin-left: 20px;
 				position: relative;
 				
 			}
@@ -29,7 +28,7 @@
 
 </head>
 <body onLoad="loadCanvas()">
-    <form runat="server">
+    <form runat="server" class="asp-form">
         <asp:ScriptManager runat="server">
             <Scripts>
                 <%--To learn more about bundling scripts in ScriptManager see http://go.microsoft.com/fwlink/?LinkID=301884 --%>
@@ -86,14 +85,14 @@
                 </div>
             </div>
         </div>
-        <div class="container body-content">
+       
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
             <hr />
             <footer class="footer">
-                <p>&copy; <%: DateTime.Now.Year %> -Cool Game</p>
+                <%--<p>&copy; <%: DateTime.Now.Year %> -Cool Game</p>--%>
             </footer>
-        </div>
+     
     </form>
 </body>
 </html>

@@ -1,106 +1,34 @@
 
-var done = false;
 var canvas;
 var ctx;
+var ghostcanvas;
+var gctx; // fake canvas context
+var WIDTH; //Canvas Width
+var HEIGHT; // Canvas Height
+var isPaused = false;
+var INTERVAL = 1;  // how often, in milliseconds, we check to see if a redraw is needed
+var canvasValid = false;
 var pictures = [];
-var WIDTH;
-var HEIGHT;
-var INTERVAL = 2;  // how often, in milliseconds, we check to see if a redraw is needed
+var mySel;
+var mySelColor = '#CC0000';
+var mySelWidth = 2;
+var isClicked;
+var done = false;
+var offsetx, offsety;
+var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
+var img_source;
 var isDrag = false;
 var mx, my; // mouse coordinates
 var demo;
-var isClicked;
-var W = 400; // Window's width
-var H = 400; // Window's height
-startBtn = {}; // Start button object
-nextBtn = {};
-var x;
-var y;
-var w;
-var h;
 var points = 0;
 var seconds;
 var miliSeconds;
 var timeBoard;
 var scoreBoard;
-mouse = {};
-var canvasValid = false;
-var mySel;
-var mySelColor = '#CC0000';
-var mySelWidth = 2;
-var ghostcanvas;
-var gctx; // fake canvas context
-var offsetx, offsety;
-var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
-var img_source;
 var level;
 level = 1;
 
 
-function loadCanvas() {
-
-    canvas = document.getElementById('canvas');
-    HEIGHT = canvas.height;
-    WIDTH = canvas.width;
-    ctx = canvas.getContext('2d');
-    ghostcanvas = document.createElement('canvas');
-    ghostcanvas.height = HEIGHT;
-    ghostcanvas.width = WIDTH;
-    gctx = ghostcanvas.getContext('2d');
-    canvas.addEventListener("mousemove", trackPosition, true);
-    canvas.addEventListener("mousedown", btnClick, true);
-    startBtn.draw();
-}
-
-function setImg(response) {
-
-    img_source = response;
-
-}
-
-startBtn = {
-    w: 100,
-    h: 50,
-    x: W / 2 - 50,
-    y: H / 2 - 25,
-    draw: function () {
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = "2";
-        ctx.strokeRect(this.x, this.y, this.w, this.h);
-
-        ctx.font = "18px Arial, sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStlye = "black";
-        ctx.fillText("Start", W / 2, H / 2);
-        GetImage();
-    }
-
-};
-
-
-
-
-
-function loadTimeBoard(nameTextBoxId) {
-    var nameTextBoxElm = document.getElementById(nameTextBoxId);
-    timeBoard = nameTextBoxElm;
-
-}
-
-
-function loadScoreBoard(nameTextBoxId) {
-
-    var nameTextBoxElm = document.getElementById(nameTextBoxId);
-    scoreBoard = nameTextBoxElm;
-
-}
-
-// Track the position of mouse cursor
-function trackPosition(e) {
-    mouse.x = e.pageX;
-    mouse.y = e.pageY;
-}
 
 function Picture() {
     this.x = 0;
@@ -113,90 +41,91 @@ function Picture() {
     this.onRightPosition;
 }
 
-//Initialize a new Box, add it, and invalidate the canvas
-function addPicture(x, y, w, h, imgSource, originalX, originalY) {
 
-    var rect = new Picture();
-    rect.x = x;
-    rect.y = y;
-    rect.w = w;
-    rect.h = h;
-    rect.imgSource = imgSource;
-    rect.originalX = originalX;
-    rect.originalY = originalY;
-    rect.onRightPosition = false;
-    pictures.push(rect);
-    invalidate();
+
+
+function loadCanvas() {
+
+    canvas = document.getElementById('canvas');
+    HEIGHT = canvas.height;
+    WIDTH = canvas.width;
+    ctx = canvas.getContext('2d');
+    ghostcanvas = document.createElement('canvas');
+    ghostcanvas.height = HEIGHT;
+    ghostcanvas.width = WIDTH;
+    gctx = ghostcanvas.getContext('2d');
+    console.log("Canvasa se zaredi");
+    drawStartScreen();
+    manageButtons();
 }
 
-function init() {
+function drawStartScreen() {
 
-    //fixes a problem where double clicking causes text to get selected on the canvas
-    canvas.onselectstart = function () { return false; }
+    var imageObj = new Image();
+    imageObj.onload = function () {
+        ctx.drawImage(imageObj, 0, 0);
+    };
+    imageObj.src = 'Content/images/canvas-background.jpg';
+}
 
-    // fixes mouse co-ordinate problems when there's a border or padding
-    // see getMouse for more detail
-    if (document.defaultView && document.defaultView.getComputedStyle) {
-        stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
-        stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
-        styleBorderLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
-        styleBorderTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+
+function manageButtons() {
+    console.log('vliza v btnMngr');
+
+    var startBtn = document.getElementById('button-start');
+    var levelBtn = document.getElementById('button-level');
+    var infoBtn = document.getElementById('button-info');
+    var exitBtn = document.getElementById('button-exit');
+    var pauseBtn = document.getElementById('button-pause');
+    var resumeBtn = document.getElementById('button-resume');
+
+    startBtn.addEventListener('click', function () { btnClicked('start') }, false);
+    levelBtn.addEventListener('click', function () { btnClicked('level') }, false);
+    infoBtn.addEventListener('click', function () { btnClicked('info') }, false);
+    exitBtn.addEventListener('click', function () { btnClicked('exit') }, false);
+    pauseBtn.addEventListener('click', function () { btnClicked('pause') }, false);
+    resumeBtn.addEventListener('click', function () { btnClicked('resume') }, false);
+
+    function btnClicked(btnName) {
+
+        if (btnName === 'start') {
+
+            pauseBtn.style.display = 'block';
+            exitBtn.style.display = 'block';
+            startBtn.style.display = 'none';
+            levelBtn.style.display = 'none';
+            infoBtn.style.display = 'none';
+            resumeBtn.style.display = 'none';
+            init();
+        }
+        if (btnName === 'pause') {
+
+            pauseBtn.style.display = 'none';
+
+            resumeBtn.style.display = 'block';
+            isPaused = true;
+        }
+        if (btnName === 'resume') {
+
+            pauseBtn.style.display = 'block';
+            resumeBtn.style.display = 'none';
+            isPaused = false;
+        }
+        if (btnName === 'exit') {
+
+            location.reload();
+        }
     }
-
-    // make draw() fire every INTERVAL milliseconds
-    setInterval(draw, INTERVAL);
-
-    // set our events. Up and down are for dragging,
-    canvas.onmousedown = myDown;
-    canvas.onmouseup = myUp;
-
-    // add custom initialization here:
-
-    // add an orange rectangle
+}
 
 
-   
-    addPicture(0, 0, 80, 80, img_source[0], 0, 0);
+function chooseLevel() {
 
-    addPicture(100, 100, 80, 80, img_source[1], 100, 100);
+    document.getElementById('button-level').addEventListener('click', showLevels, false);
 
-    addPicture(200, 0, 80, 80, img_source[2], 200, 0);
-    addPicture(200, 200, 80, 80, img_source[3], 200, 200);
-
-    demo = true;
-
-    setTimeout(function () {
-        clear(ctx);
-        ctx.fillStyle = "blue";
-        ctx.font = "bold 16px Arial";
-        ctx.fillText("Start", 100, 100);
-
-    }, 2000);
-
-
-
-
-    setTimeout(function () {
-
-        demo = false;
-        clear(ctx);
-        pictures = [];
-
-        addPicture(310, 0, 80, 80, img_source[0], 0, 0);
-
-        addPicture(310, 100, 80, 80, img_source[1], 100, 100);
-
-        addPicture(310, 200, 80, 80, img_source[2], 200, 0);
-        addPicture(310, 300, 80, 80, img_source[3], 200, 200);
-        countTime();
-
-    }, 3000);
-
-    seconds = 0;
-    miliSeconds = 0;
-    
-
-
+    function showLevels() {
+        document.getElementById('levelList').style.display = 'block';
+    }
 }
 
 
@@ -204,82 +133,171 @@ function countTime() {
 
     setInterval(function () {
 
-        if (done == false) {
+        if (done == false && isPaused == false) {
             updateTimeBoard();
         }
-    }, 10);
+    }, 100);
+}
+
+function init() {
+
+ 
+    //fixes a problem where double clicking causes text to get selected on the canvas
+    canvas.onselectstart = function () { return false; }
+
+    if (document.defaultView && document.defaultView.getComputedStyle) {
+        stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
+        stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
+        styleBorderLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
+        styleBorderTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+    }
+
+    setInterval(draw, INTERVAL);
+
+    canvas.onmousedown = myDown;
+    canvas.onmouseup = myUp;
+
+    // To be renamed  - AJAX
+    GetImage();
+    drawLoadScreen();
+    setTimeout(function () {
+        // to put logic about level loading here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        console.log("purvi time out - kude trqbva da sa !");
+        addPicture(10, 10, 80, 80, img_source[0], 10, 10);
+
+        addPicture(110, 110, 80, 80, img_source[1], 110, 110);
+
+        addPicture(210, 10, 80, 80, img_source[2], 210, 10);
+        addPicture(210, 210, 80, 80, img_source[3], 210, 210);
+
+        demo = true;
+
+    }, 1000);
+
+
+
+    setTimeout(function () {
+        var imageObj = new Image();
+        imageObj.onload = function () {
+            ctx.drawImage(imageObj, 0, 0);
+        };
+        imageObj.src = 'Content/images/letsplay.jpg';
+
+    }, 3000);
+
+
+
+
+    setTimeout(function () {
+        console.log("treti time out - pochva !");
+
+        demo = false;
+        clear(ctx);
+        pictures = [];
+        /////////////////////////////Set logic for ordering the imges - left!!!!!!!!!!!!!
+
+        addPicture(310, 0, 80, 80, img_source[0], 10, 10);
+
+        addPicture(310, 100, 80, 80, img_source[1], 110, 110);
+
+        addPicture(310, 200, 80, 80, img_source[2], 210, 10);
+        addPicture(310, 300, 80, 80, img_source[3], 210, 210);
+        countTime();
+
+    }, 4000);
+
+    seconds = 0;
+    miliSeconds = 0;
 }
 
 
-function drawFrame() {
 
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(100, 0); // Set the path origin
-    ctx.lineTo(100, 400); // Set the path destination
-    ctx.stroke(); // Outline the path
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(200, 0); // Set the path origin
-    ctx.lineTo(200, 400); // Set the path destination
-    ctx.stroke(); // Outline the path
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(300, 0); // Set the path origin
-    ctx.lineTo(300, 400); // Set the path destination
-    ctx.stroke(); // Outline the path
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(0, 100); // Set the path origin
-    ctx.lineTo(300, 100); // Set the path destination
-    ctx.stroke(); // Outline the path
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(0, 200); // Set the path origin
-    ctx.lineTo(300, 200); // Set the path destination
-    ctx.stroke(); // Outline the path
-    ctx.beginPath(); // Start the path
-    ctx.moveTo(0, 300); // Set the path origin
-    ctx.lineTo(300, 300); // Set the path destination
-    ctx.stroke(); // Outline the path
+function check() {
 
+    if (demo == false && isClicked == false) {
+
+        var onRightPositionArray = [];
+        var l = pictures.length;
+
+        for (var i = l - 1; i >= 0; i--) {
+
+            if ((pictures[i].x > pictures[i].originalX + 20 || pictures[i].x < pictures[i].originalX - 20) || (pictures[i].y > pictures[i].originalY + 20 || pictures[i].y < pictures[i].originalY - 20)) {
+
+
+            }
+            else {
+                console.log("picture x " + pictures[i].x + "picture y " + pictures[i].y);
+                console.log("picture original x " + pictures[i].originalX + "picture original y " + pictures[i].originalY);
+             
+                pictures[i].x = pictures[i].originalX;
+                pictures[i].y = pictures[i].originalY;
+
+                pictures[i].onRightPosition = true;
+                onRightPositionArray.push(pictures[i]);
+            }
+        }
+
+
+        if (onRightPositionArray.length == l) {
+
+            clear(ctx);
+            done = true;
+            SaveScores();
+
+        }
+
+    }
 }
-//wipes the canvas context
-function clear(c) {
-    c.clearRect(0, 0, WIDTH, HEIGHT);
+
+//window.setInterval(function () {
+
+//    if (done == false) {
+//        check();
+//    }
+
+//}, 1000);
+
+
+function drawLoadScreen() {
+
+    var imageObj = new Image();
+    imageObj.src = 'Content/images/loading.jpg';
+
+    imageObj.addEventListener("load", function () {
+        ctx.drawImage(imageObj, 0, 0);
+    }, false);
 }
 
-// While draw is called as often as the INTERVAL variable demands,
-// It only ever does something if the canvas gets invalidated by our code
 function draw() {
     if (canvasValid == false) {
         ctx.save();
         clear(ctx);
-        // Add stuff you want drawn in the background all the time here
 
-        // draw all boxes
         var l = pictures.length;
         for (var i = 0; i < l; i++) {
             drawshape(ctx, pictures[i], pictures[i].imgSource);
             drawFrame();
         }
 
-        // draw selection
-        // right now this is just a stroke along the edge of the selected box
+        // stroke along the edge of the selected box
         if (mySel != null) {
             ctx.strokeStyle = mySelColor;
             ctx.lineWidth = mySelWidth;
             ctx.strokeRect(mySel.x, mySel.y, mySel.w, mySel.h);
         }
 
-        // Add stuff you want drawn on top all the time here
-
         ctx.restore();
         canvasValid = true;
-
+        window.requestAnimationFrame(draw);
     }
 }
 
-// Draws a single shape to a single context
-// draw() will call this with the normal canvas
-// myDown will call this with the ghost canvas
-function drawshape(context, shape, imgSrc) {
+function clear(c) {
+    c.clearRect(0, 0, WIDTH, HEIGHT);
+}
 
+
+function drawshape(context, shape, imgSrc) {
 
     // We can skip the drawing of elements that have moved off the screen:
     if (shape.x > WIDTH || shape.y > HEIGHT) return;
@@ -288,16 +306,12 @@ function drawshape(context, shape, imgSrc) {
     var img = new Image();
     img.src = imgSrc;
 
-
-
     img.onload = function () {
 
         context.drawImage(img, shape.x, shape.y, shape.w, shape.h);
     };
 
-
 }
-
 
 function drawshapeRect(context, shape, fill) {
     context.fillStyle = fill;
@@ -309,27 +323,47 @@ function drawshapeRect(context, shape, fill) {
     context.fillRect(shape.x, shape.y, shape.w, shape.h);
 }
 
+function drawFrame() {
 
-
-
-// Happens when the mouse is moving inside the canvas
-function myMove(e) {
-    if (isDrag) {
-
-        getMouse(e);
-        mySel.x = mx - offsetx;
-        mySel.y = my - offsety;
-
-        // something is changing position so we better invalidate the canvas!
-        invalidate();
-    }
+    ctx.beginPath(); 
+    ctx.moveTo(100, 0); 
+    ctx.lineTo(100, 400); 
+    ctx.stroke(); 
+    ctx.beginPath(); 
+    ctx.moveTo(200, 0); 
+    ctx.lineTo(200, 400); 
+    ctx.stroke(); 
+    ctx.beginPath();
+    ctx.moveTo(300, 0);
+    ctx.lineTo(300, 400); 
+    ctx.stroke(); 
+    ctx.beginPath(); 
+    ctx.moveTo(0, 100); 
+    ctx.lineTo(300, 100);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 200);
+    ctx.lineTo(300, 200);
+    ctx.stroke();
+    ctx.beginPath(); 
+    ctx.moveTo(0, 300); 
+    ctx.lineTo(300, 300);
+    ctx.stroke();
 
 }
 
-// Happens when the mouse is clicked in the canvas
+// To be renamed  - AJAX
+function setImg(response) {
+
+    img_source = response;
+
+}
+
 function myDown(e) {
 
+    console.log('natisna mishkata');
     isClicked = true;
+
     if (done == false) {
         getMouse(e);
         clear(gctx);
@@ -343,7 +377,7 @@ function myDown(e) {
 
 
             //print info
-            //console.log(imageData);
+            console.log(imageData);
 
             var index = (mx + my * imageData.width) * 4;
             // if the mouse pixel exists, select and break
@@ -373,24 +407,8 @@ function myDown(e) {
     }
 }
 
-function myUp() {
-    isClicked = false;
-    if (done == false) {
-        isDrag = false;
-        canvas.onmousemove = null;
-        mySel = null;
-        invalidate();
-    }
-
-}
-
-
-function invalidate() {
-    canvasValid = false;
-}
-
-
 function getMouse(e) {
+    
     var element = canvas, offsetX = 0, offsetY = 0;
 
     if (element.offsetParent) {
@@ -409,101 +427,74 @@ function getMouse(e) {
 
     mx = e.pageX - offsetX;
     my = e.pageY - offsetY
+    console.log('Vzema mishkata na X: ' + mx + " my : " + my);
+}
 
+function addPicture(x, y, w, h, imgSource, originalX, originalY) {
+
+    var rect = new Picture();
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
+    rect.imgSource = imgSource;
+    rect.originalX = originalX;
+    rect.originalY = originalY;
+    rect.onRightPosition = false;
+    pictures.push(rect);
+    invalidate();
+}
+
+function loadTimeBoard(nameTextBoxId) {
+    var nameTextBoxElm = document.getElementById(nameTextBoxId);
+    timeBoard = nameTextBoxElm;
 
 }
 
-function check() {
 
-    if (demo == false && isClicked == false) {
+function loadScoreBoard(nameTextBoxId) {
 
-        var onRightPositionArray = [];
-        var l = pictures.length;
+    var nameTextBoxElm = document.getElementById(nameTextBoxId);
+    scoreBoard = nameTextBoxElm;
 
-        for (var i = l - 1; i >= 0; i--) {
+}
 
-            if ((pictures[i].x > pictures[i].originalX + 20 || pictures[i].x < pictures[i].originalX - 20) || (pictures[i].y > pictures[i].originalY + 20 || pictures[i].y < pictures[i].originalY - 20)) {
-            }
-            else {
-                pictures[i].onRightPosition = true;
-                onRightPositionArray.push(pictures[i]);
-            }
+function myMove(e) {
+    if (isDrag) {
+        console.log("Drag");
 
-        }
+        getMouse(e);
+        mySel.x = mx - offsetx;
+        mySel.y = my - offsety;
 
-
-        if (onRightPositionArray.length == l) {
-
-            clear(ctx);
-            done = true;
-            SaveScores();
-            nextBtn = {
-
-               
-                w: 100,
-                h: 50,
-                x: W / 2 - 50,
-                y: H / 2 - 25,
-                draw: function () {
-                    ctx.strokeStyle = "black";
-                    ctx.lineWidth = "2";
-                    ctx.strokeRect(this.x, this.y, this.w, this.h);
-
-                    ctx.font = "18px Arial, sans-serif";
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.fillStlye = "black";
-                    ctx.fillText("Next", W / 2, H / 2);
-                 
-                }
-
-
-            };
-
-
-            nextBtn.draw();
-
-        }
-
+        // something is changing position so we better invalidate the canvas!
+        invalidate();
     }
+
 }
 
-window.setInterval(function () {
 
+
+function myUp() {
+    isClicked = false;
     if (done == false) {
+        isDrag = false;
+        canvas.onmousemove = null;
+        mySel = null;
+        invalidate();
         check();
     }
 
-}, 1000);
-
-
-function btnClick(e) {
-
-    var mx = e.pageX,
-            my = e.pageY;
-
-    // Click start button
-    //if (mx >= startBtn.x && mx <= startBtn.x + startBtn.w) {
-
-    //    // Delete the start button after clicking it
-    //    startBtn = {};
-    //}
-
-    if (startBtn.x !== undefined) {
-        startBtn = {};
-        init();
-    }
-    if (nextBtn.x !== undefined) {
-        nextBtn = {};
-        pictures = [];
-        done = false;
-        init();
-    }
 }
+
+function invalidate() {
+    canvasValid = false;
+}
+
 
 function updateTimeBoard() {
 
-    if (miliSeconds > 100) {
+    if (miliSeconds > 10) {
 
         miliSeconds = 0;
         seconds += 1;
@@ -513,26 +504,25 @@ function updateTimeBoard() {
         miliSeconds += 1;
     }
 
-    timeBoard.innerHTML =seconds + ' : ' + miliSeconds;
+    timeBoard.innerHTML = seconds + ' : ' + miliSeconds;
 };
-
 
 function updateScoreBoard() {
 
-    if(level===1) {
+    if (level === 1) {
 
         points += 10;
         level += 1;
         console.log("vliza v 1");
     }
 
-    else if(level===2) {
+    else if (level === 2) {
         points += 15;
         level += 1;
         console.log("vliza v 2");
     }
 
-    else if(level===3) {
+    else if (level === 3) {
         points += 20;
         level += 1;
         console.log("vliza v 3");
@@ -540,5 +530,4 @@ function updateScoreBoard() {
 
     scoreBoard.innerHTML = points;
 };
-
 
