@@ -150,8 +150,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\images\background-page.jpg" />
     <Content Include="Content\images\canvas-background.jpg" />
+    <Content Include="Content\images\canvasbckgr.jpg" />
+    <Content Include="Content\images\err.mp3" />
+    <Content Include="Content\images\gameover.jpg" />
+    <Content Include="Content\images\letsplay.jpg" />
+    <Content Include="Content\images\level-complete.jpg" />
     <Content Include="Content\images\loading.jpg" />
+    <Content Include="Content\images\memorizeit.jpg" />
+    <Content Include="Content\images\snd.mp3" />
+    <Content Include="Content\images\stat_head.png" />
+    <Content Include="Content\sounds\compl.mp3" />
+    <Content Include="Content\sounds\correct.mp3" />
+    <Content Include="Content\sounds\gameOver.mp3" />
+    <Content Include="Content\sounds\in.mp3" />
+    <Content Include="Content\sounds\start.mp3" />
+    <Content Include="Content\sounds\wrong.mp3" />
     <Content Include="Statistics.aspx" />
     <Content Include="Account\Login.aspx" />
     <Content Include="Account\Manage.aspx" />
@@ -221,7 +236,9 @@
     <Content Include="Global.asax" />
     <Content Include="Site.Master" />
     <Content Include="ViewSwitcher.ascx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Bundle.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />

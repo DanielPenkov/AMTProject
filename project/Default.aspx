@@ -5,7 +5,7 @@
     <div class="content">
 
         <div class="title">
-            AWESOME - Puzzle memory game
+            PUZZLE MEMORY GAME
         </div>
 
         <div class="game-container">
@@ -14,7 +14,12 @@
 
                 <div class="time">
                     Time:
-                    <asp:Label ID="timeboard" runat="server">00:00</asp:Label>
+                    <asp:Label ID="timeboard" runat="server">0 : 0</asp:Label>
+                </div>
+
+                <div class="level">
+                    Level:
+                    <asp:Label ID="levelLbl" runat="server">0</asp:Label>
                 </div>
 
                 <div class="score">
@@ -28,19 +33,15 @@
             </div>
 
             <div class="game-buttons">
+                <div id="button-play-again">
+                    Try Again
+                </div>
                 <div id="button-pause">
-                    <a href="#">Pause</a>
+                    Pause
                 </div>
                 <div id="button-start">
-                    <a href="#" >Start</a>
+                    Play now
                 </div>
-
-                <div id="button-level">
-                    <a href="#">Level</a>
-                </div>
-                <div id="levelList">
-                    
-                    </div>
 
                 <div id="button-info">
                     INFO
@@ -48,8 +49,12 @@
                 <div id="button-resume">
                     Resume
                 </div>
-                                <div id="button-exit">
-                    Exit
+                <div id="button-next">
+                    Next 
+                </div>
+
+                <div id="button-exit">
+                    Exit game
                 </div>
 
             </div>
@@ -58,10 +63,29 @@
 
         <div class="sidebar">
             <div class="sidebar-title">BADGES</div>
-            <div class="sidebar-table">
-                You don't have any badges yet
+            <div class="sidebar-table" id="user_badges" runat="server">
+
+                <asp:Label ID="badgeLabel" runat="server" />
+
+                <div class="badge-image">
+                    <asp:Image ID="img1" runat="server" />
+
+                    <asp:Label ID="LabelBadge1" runat="server" CssClass="labl" />
+                </div>
+                <div class="badge-image">
+                    <asp:Image ID="img2" runat="server" />
+
+                    <asp:Label ID="LabelBadge2" runat="server" />
+                </div>
+                <div class="badge-image">
+                    <asp:Image ID="img3" runat="server" />
+                    <asp:Label ID="LabelBadge3" runat="server" />
+                </div>
+
             </div>
-            <div class="sidebar-title">BEST USERS</div>
+            <div class="sidebar-title">
+                <asp:Image ID="Image_hs" runat="server" ImageUrl="http://res.cloudinary.com/hmn3z3apa/image/upload/v1429908335/1429926218_keditbookmarks_nbs5x5.png" />
+                HIGHEST SCORE</div>
             <div class="sidebar-table">
                 <asp:ListView ID="ListView1" runat="server" DataSourceID="ObjectDataSource1">
                     <AlternatingItemTemplate>
@@ -120,7 +144,7 @@
                         </tr>
                     </ItemTemplate>
                     <LayoutTemplate>
-                        <table runat="server">
+                        <table runat="server" class="table table-striped ">
                             <tr runat="server">
                                 <td runat="server">
                                     <table id="itemPlaceholderContainer" runat="server" border="0" style="">
@@ -149,7 +173,7 @@
                         </tr>
                     </SelectedItemTemplate>
                 </asp:ListView>
-                <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetAllUsers" TypeName="project.Models.UsersGameModel"></asp:ObjectDataSource>
+                <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetBestUsers" TypeName="project.Models.UsersGameModel"></asp:ObjectDataSource>
             </div>
         </div>
 
@@ -158,16 +182,17 @@
         <script type="text/javascript">
             loadTimeBoard("<%=timeboard.ClientID %>");
             loadScoreBoard("<%=scoreboard.ClientID %>");
+            loadLevel("<%=levelLbl.ClientID %>");
 
 
             function SaveScores() {
-                updateScoreBoard();
                 var scoreLabel = document.getElementById('<%=scoreboard.ClientID %>').innerText;
 
 
-                console.log("TOCHKI: " + scoreLabel);
+                console.log("Zapisva tochkite: " + scoreLabel);
                 $.ajax({
                     type: "POST",
+                    async: false,
                     url: "Default.aspx/SaveScores",
                     data: JSON.stringify({ score: scoreLabel }),
                     contentType: "application/json; charset=utf-8",
@@ -182,17 +207,43 @@
 
             }
 
-            function GetImage() {
+            function GetImage(levelId) {
 
+                var data = "{imgTypeId :" + levelId + "}";
+
+                console.log("Vika GET AJAX");
                 $.ajax({
                     type: "POST",
                     url: "Default.aspx/GetImage",
-                    data: '{ imgTypeId : "1" }',
+                    data: data,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
                         setImg(response.d);
 
+
+                    },
+                    failure: function (response) {
+                        alert("Error in saving results");
+                    }
+                });
+
+            }
+
+            function getLevel(levelId) {
+
+                var data = "{id :" + levelId + "}";
+
+                console.log("Vika GET AJAX");
+                $.ajax({
+                    type: "POST",
+                    url: "Default.aspx/GetLevel",
+                    data: data,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        setLevelData(response.d);
+                        GetImage(response.d[0]);
 
                     },
                     failure: function (response) {
