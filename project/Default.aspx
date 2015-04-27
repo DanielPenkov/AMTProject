@@ -33,27 +33,27 @@
             </div>
 
             <div class="game-buttons">
-                <div id="button-play-again">
+                <div id="button-play-again" class="button-game">
                     Try Again
                 </div>
-                <div id="button-pause">
+                <div id="button-pause" class="button-game">
                     Pause
                 </div>
-                <div id="button-start">
+                <div id="button-start" class="button-game">
                     Play now
                 </div>
 
-                <div id="button-info">
+                <div id="button-info" class="button-game">
                     INFO
                 </div>
-                <div id="button-resume">
+                <div id="button-resume" class="button-game">
                     Resume
                 </div>
-                <div id="button-next">
+                <div id="button-next" class="button-game">
                     Next 
                 </div>
 
-                <div id="button-exit">
+                <div id="button-exit" class="button-game">
                     Exit game
                 </div>
 
@@ -85,7 +85,8 @@
             </div>
             <div class="sidebar-title">
                 <asp:Image ID="Image_hs" runat="server" ImageUrl="http://res.cloudinary.com/hmn3z3apa/image/upload/v1429908335/1429926218_keditbookmarks_nbs5x5.png" />
-                HIGHEST SCORE</div>
+                HIGHEST SCORE
+            </div>
             <div class="sidebar-table">
                 <asp:ListView ID="ListView1" runat="server" DataSourceID="ObjectDataSource1">
                     <AlternatingItemTemplate>
@@ -177,81 +178,10 @@
             </div>
         </div>
 
-        <script type="text/javascript" src="Scripts/game.js"></script>
-
         <script type="text/javascript">
             loadTimeBoard("<%=timeboard.ClientID %>");
             loadScoreBoard("<%=scoreboard.ClientID %>");
             loadLevel("<%=levelLbl.ClientID %>");
-
-
-            function SaveScores() {
-                var scoreLabel = document.getElementById('<%=scoreboard.ClientID %>').innerText;
-
-
-                console.log("Zapisva tochkite: " + scoreLabel);
-                $.ajax({
-                    type: "POST",
-                    async: false,
-                    url: "Default.aspx/SaveScores",
-                    data: JSON.stringify({ score: scoreLabel }),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: OnSuccess,
-                    failure: function (response) {
-                        alert("Error in saving results");
-                    }
-                });
-            }
-            function OnSuccess(response) {
-
-            }
-
-            function GetImage(levelId) {
-
-                var data = "{imgTypeId :" + levelId + "}";
-
-                console.log("Posle vika GetImages");
-                $.ajax({
-                    type: "POST",
-                    url: "Default.aspx/GetImage",
-                    data: data,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                        setImg(response.d);
-
-
-                    },
-                    failure: function (response) {
-                        alert("Error in saving results");
-                    }
-                });
-
-            }
-
-            function getLevel(levelId) {
-
-                var data = "{id :" + levelId + "}";
-
-                console.log("Vika GETLevel AJAX");
-                $.ajax({
-                    type: "POST",
-                    url: "Default.aspx/GetLevel",
-                    data: data,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                        setLevelData(response.d);
-                        GetImage(response.d[0]);
-
-                    },
-                    failure: function (response) {
-                        alert("Error in saving results");
-                    }
-                });
-
-            }
         </script>
 
     </div>

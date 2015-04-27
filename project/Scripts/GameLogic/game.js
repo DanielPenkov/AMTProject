@@ -1,52 +1,28 @@
 
-var canvas;
-var ctx;
-var ghostcanvas;
-var gctx; // fake canvas context
-var WIDTH; //Canvas Width
-var HEIGHT; // Canvas Height
-var isPaused = false;
-var INTERVAL = 1;  // how often, in milliseconds, we check to see if a redraw is needed
-var canvasValid = true;
+var canvas, ctx, ghostcanvas, gctx, WIDTH, HEIGHT, mySel, isClicked, offsetx, offsety,
+    stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop, mx, my, 
+    demo, seconds,  miliSeconds, timeBoard, scoreBoard, levelBoard, level_points, 
+    counter, exitBtn, nextBtn, resumeBtn, pauseBtn, playAgainBtn, startBtn, infoBtn;
+
+
 var pictures = [];
-var mySel;
+var level = 0;
+var timeOver = false;
+var points = 0;
 var mySelColor = '#CC0000';
 var mySelWidth = 2;
-var isClicked;
+var isPaused = false;
+var INTERVAL = 1;
+var canvasValid = true;
 var done = false;
-var offsetx, offsety;
-var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
 var img_source = [];
 var isDrag = false;
-var mx, my; // mouse coordinates
-var demo;
-var points = 0;
-var seconds;
-var miliSeconds;
-var timeBoard;
-var scoreBoard;
-var levelBoard;
-var level;
-var level_img_type;
-var level_points;
-var timeOver = false;
-level = 0;
-var counter;
-
-
-
-var exitBtn;
-var nextBtn;
-var resumeBtn;
-var pauseBtn;
-var playAgainBtn;
-
 
 
 function Picture() {
     this.x = 0;
     this.y = 0;
-    this.w = 1; // default width and height?
+    this.w = 1;
     this.h = 1;
     this.imgSource = "";
     this.originalX;
@@ -55,9 +31,6 @@ function Picture() {
     this.mixedX;
     this.mixedY;
 }
-
-
-
 
 function loadCanvas() {
 
@@ -83,18 +56,15 @@ function drawStartScreen() {
 }
 
 
-
 function manageButtons() {
 
-
-    var startBtn = document.getElementById('button-start');
-    var infoBtn = document.getElementById('button-info');
+    startBtn = document.getElementById('button-start');
+    infoBtn = document.getElementById('button-info');
     exitBtn = document.getElementById('button-exit');
     pauseBtn = document.getElementById('button-pause');
     resumeBtn = document.getElementById('button-resume');
     nextBtn = document.getElementById('button-next');
     playAgainBtn = document.getElementById('button-play-again');
-
 
     startBtn.addEventListener('click', function () { btnClicked('start') }, false);
     infoBtn.addEventListener('click', function () { btnClicked('info') }, false);
@@ -103,100 +73,61 @@ function manageButtons() {
     resumeBtn.addEventListener('click', function () { btnClicked('resume') }, false);
     nextBtn.addEventListener('click', function () { btnClicked('next') }, false);
     playAgainBtn.addEventListener('click', function () { btnClicked('playAgain') }, false);
-
-
-    function btnClicked(btnName) {
-
-        if (btnName === 'start') {
-
-            var snd = new Audio("Content/sounds/in.mp3");
-            snd.play();
-
-            pauseBtn.style.display = 'block';
-            exitBtn.style.display = 'block';
-            startBtn.style.display = 'none';
-            infoBtn.style.display = 'none';
-            resumeBtn.style.display = 'none';
-            playAgainBtn.style.display = 'none';
-            init();
-        }
-        if (btnName === 'pause') {
-
-            pauseBtn.style.display = 'none';
-
-
-            resumeBtn.style.display = 'block';
-            isPaused = true;
-        }
-        if (btnName === 'resume') {
-
-            pauseBtn.style.display = 'block';
-            resumeBtn.style.display = 'none';
-            isPaused = false;
-        }
-        if (btnName === 'exit') {
-
-
-                location.reload();
-           
-           
-        }
-        if (btnName === 'next') {
-
-            pauseBtn.style.display = 'block';
-            exitBtn.style.display = 'block';
-            startBtn.style.display = 'none';
-            infoBtn.style.display = 'none';
-            resumeBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            clearTimeout(counter);
-
-            init();
-            done = false;
-
-        }
-
-
-        if (btnName === 'playAgain') {
-
-            pauseBtn.style.display = 'block';
-            exitBtn.style.display = 'block';
-            startBtn.style.display = 'none';
-            infoBtn.style.display = 'none';
-            resumeBtn.style.display = 'none';
-            playAgainBtn.style.display = 'none';
-            done = false;
-            scoreBoard.innerHTML = '0';
-            levelBoard.innerHTML = '0';
-            timeOver = false;
-            level = 0;
-            clearTimeout(counter);
-            init();
-
-        }
-
-    }
+   
 }
 
+function btnClicked(btnName) {
 
-function chooseLevel() {
+    if (btnName === 'start') {
 
-    document.getElementById('button-level').addEventListener('click', showLevels, false);
+        var snd = new Audio("Content/sounds/in.mp3");
+        snd.play();
 
-    function showLevels() {
-        document.getElementById('levelList').style.display = 'block';
+        pauseBtn.style.display = 'block';
+        exitBtn.style.display = 'block';
+        startBtn.style.display = 'none';
+        infoBtn.style.display = 'none';
+        init();
     }
-}
+    if (btnName === 'pause') {
 
+        pauseBtn.style.display = 'none';
+        resumeBtn.style.display = 'block';
+        isPaused = true;
+    }
+    if (btnName === 'resume') {
 
-function countTime() {
+        pauseBtn.style.display = 'block';
+        resumeBtn.style.display = 'none';
+        isPaused = false;
+    }
+    if (btnName === 'exit') {
 
-    counter = setInterval(function () {
+        location.reload();
+    }
+    if (btnName === 'next') {
 
-        if (done == false && isPaused == false && timeOver == false) {
-            updateTimeBoard();
-        }
-    }, 100);
+        pauseBtn.style.display = 'block';
+        exitBtn.style.display = 'block';
+        nextBtn.style.display = 'none';
+        clearTimeout(counter);
+
+        init();
+        done = false;
+    }
+    if (btnName === 'playAgain') {
+
+        pauseBtn.style.display = 'block';
+        exitBtn.style.display = 'block';
+        playAgainBtn.style.display = 'none';
+        done = false;
+        scoreBoard.innerHTML = '0';
+        levelBoard.innerHTML = '0';
+        timeOver = false;
+        level = 0;
+        clearTimeout(counter);
+        init();
+    }
 }
 
 function init() {
@@ -204,8 +135,6 @@ function init() {
     level += 1;
     pauseBtn.style.display = 'none';
     exitBtn.style.display = 'none';
-
-    //fixes a problem where double clicking causes text to get selected on the canvas
     canvas.onselectstart = function () { return false; }
 
     if (document.defaultView && document.defaultView.getComputedStyle) {
@@ -218,45 +147,41 @@ function init() {
     setInterval(draw, INTERVAL);
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
-
     getLevel(level);
-
-   
-    
-
 }
 
+function setLevelData(level) {
 
-//function loadGame() {
+    var level_img_type;
 
-    
-//    var imageObj = new Image();
-//    imageObj.src = 'Content/images/loading.jpg';
+    if (parseInt(level[0]) < 9) {
 
-//    imageObj.addEventListener("load", function () {
-//        ctx.drawImage(imageObj, 0, 0);
-//    }, false);
+        level_img_type = level[0];
+        level_points = parseInt(level[1]);
 
-  
-//    //if (img_source.length == 0) {
+    } else {
 
-//    //    loadGame();
+        level_img_type = 8;
+        level_points = 50;
 
-//    //}
-//    //else {
+    }
+}
 
-    
-//    setTimeout(startGame, 1500);
-//    console.dir("kartinki  " + img_source.length);
-     
+function setLevelImages(response) {
 
-//    //}
+    img_source = response;
 
+    if (img_source.length == 0) {
 
+        alert("Failed to load image data please try again !")
+        location.reload();
 
+    } else {
 
-//}
+        startGame();
+    }
 
+}
 
 function startGame() {
 
@@ -265,7 +190,7 @@ function startGame() {
     setTimeout(function () {
         loadDemoImages();
         levelBoard.innerHTML = level;
-    }, 2000);
+    }, 1000);
 
     setTimeout(function () {
         var imageObj = new Image();
@@ -273,6 +198,9 @@ function startGame() {
             ctx.drawImage(imageObj, 0, 0);
         };
         imageObj.src = 'Content/images/letsplay.jpg';
+        var snd = new Audio("Content/sounds/start.mp3");
+        snd.play();
+
 
     }, 5000);
 
@@ -285,61 +213,18 @@ function startGame() {
 
     setTime();
 
-
-}
-
-function setTime() {
-    miliSeconds = 0;
-
-    switch (level) {
-        case 1:
-            seconds = 30;
-            break;
-        case 2:
-            seconds = 40;
-            break;
-        case 3:
-            seconds = 50;
-            break
-        case 4:
-            seconds = 60;
-            break
-        case 5:
-            seconds = 70;
-            break
-        case 6:
-            seconds = 80;
-            break
-        case 7:
-            seconds = 90;
-            break
-        case 8:
-            seconds = 90;
-            break
-        default:
-            seconds = 100;
-
-    }
-
-
-
 }
 
 
-function generateOriginalPosition() {
+function drawMemorizeScreen() {
 
-    var randomOriginalX = Math.floor((Math.random() * 3)) * 100;
-    var randomOriginalY = Math.floor((Math.random() * 4)) * 100;
+    var imageObj = new Image();
+    imageObj.src = 'Content/images/memorizeit.jpg';
 
-    var position = {
-
-        x: randomOriginalX,
-        y: randomOriginalY
-    }
-
-    return position;
+    imageObj.addEventListener("load", function () {
+        ctx.drawImage(imageObj, 0, 0);
+    }, false);
 }
-
 
 function loadDemoImages() {
 
@@ -366,32 +251,52 @@ function loadDemoImages() {
 
                 if (pictures[a].originalX == (tempX + margin) && pictures[a].originalY == (tempY + margin)) {
 
-
                     a = -1;
                     newImgPosition = generateOriginalPosition();
                     tempX = newImgPosition.x;
                     tempY = newImgPosition.y;
-
                 }
             }
 
             addPicture(tempX + margin, tempY + margin, 80, 80, img_source[i], tempX + margin, tempY + margin, 0, 0);
-
         }
-
     }
 
     demo = true;
+}
 
+function generateOriginalPosition() {
 
+    var randomOriginalX = Math.floor((Math.random() * 3)) * 100;
+    var randomOriginalY = Math.floor((Math.random() * 4)) * 100;
+
+    var position = {
+
+        x: randomOriginalX,
+        y: randomOriginalY
+    }
+
+    return position;
+}
+
+function addPicture(x, y, w, h, imgSource, originalX, originalY, mixedX, mixedY) {
+
+    var rect = new Picture();
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
+    rect.imgSource = imgSource;
+    rect.originalX = originalX;
+    rect.originalY = originalY;
+    rect.onRightPosition = false;
+    rect.mixedX = mixedX;
+    rect.mixedY = mixedY;
+    pictures.push(rect);
+    invalidate();
 }
 
 function loadMixedImages() {
-
-
-    var snd = new Audio("Content/sounds/start.mp3");
-    snd.play();
-    console.log(points);
 
     demo = false;
     clear(ctx);
@@ -421,26 +326,64 @@ function loadMixedImages() {
     countTime();
 }
 
+function countTime() {
+
+    counter = setInterval(function () {
+
+        if (done == false && isPaused == false && timeOver == false) {
+            updateTimeBoard();
+        }
+    }, 100);
+}
+
+
+function setTime() {
+    miliSeconds = 0;
+
+    switch (level) {
+        case 1:
+            seconds = 20;
+            break;
+        case 2:
+            seconds = 25;
+            break;
+        case 3:
+            seconds = 30;
+            break
+        case 4:
+            seconds = 35;
+            break
+        case 5:
+            seconds = 40;
+            break
+        case 6:
+            seconds = 45;
+            break
+        case 7:
+            seconds = 50;
+            break
+        case 8:
+            seconds = 55;
+            break
+        default:
+            seconds = 60;
+    }
+}
+
 function check() {
-
-
 
     if (demo == false && isClicked == false) {
 
         var onRightPositionArray = [];
         var l = pictures.length;
 
-
         for (var i = l - 1; i >= 0; i--) {
-
-            console.log(onRightPositionArray.length);
 
             if ((pictures[i].x > pictures[i].originalX + 30 || pictures[i].x < pictures[i].originalX - 30) || (pictures[i].y > pictures[i].originalY + 30 || pictures[i].y < pictures[i].originalY - 30)) {
 
                 pictures[i].x = pictures[i].mixedX;
                 pictures[i].y = pictures[i].mixedY;
-
-              
+         
             }
             else {
 
@@ -465,8 +408,6 @@ function check() {
 
 function animateRightPosition(picture) {
 
-
-
     picture.w = 40;
     picture.h = 40;
     picture.x += 20;
@@ -474,7 +415,6 @@ function animateRightPosition(picture) {
 
     setTimeout(function () {
 
-        console.log("svurshi time-outa");
         picture.w = 80;
         picture.h = 80;
         picture.x -= 20;
@@ -483,63 +423,42 @@ function animateRightPosition(picture) {
 
     }, 100);
 
-
 }
 
-function drawMemorizeScreen() {
 
-    var imageObj = new Image();
-    imageObj.src = 'Content/images/memorizeit.jpg';
-
-    imageObj.addEventListener("load", function () {
-        ctx.drawImage(imageObj, 0, 0);
-    }, false);
-}
 
 
 function drawGameOverScreen() {
 
     pictures = [];
-
-
-
-
-
     var imageObj = new Image();
-
-
 
     imageObj.onload = function () {
         ctx.drawImage(imageObj, 0, 0);
     };
 
     imageObj.src = 'Content/images/gameover.jpg';
-
- 
 }
 
 function drawCompletedScreen() {
-    console.log('compl-screen');
 
     clear(ctx);
     var imageObj = new Image();
+    var snd = new Audio("Content/sounds/compl.mp3");
+    pictures = [];
+    isDrag = false;
+
     imageObj.src = 'Content/images/level-complete.jpg';
 
     imageObj.onload = function () {
         ctx.drawImage(imageObj, 0, 0);
-        console.log('RISUVAI - COMPL');
     };
 
-    var snd = new Audio("Content/sounds/compl.mp3");
     snd.play();
-
-    pictures = [];
-
-
-    isDrag = false;
 }
 
 function draw() {
+
     if (canvasValid == false) {
         ctx.save();
         clear(ctx);
@@ -549,26 +468,15 @@ function draw() {
 
             if (demo == true) {
 
-
                 drawshape(ctx, pictures[i], pictures[i].imgSource);
             } else {
-
-
 
                 var img = new Image();
                 img.src = pictures[i].imgSource;
 
-
-
                 ctx.drawImage(img, pictures[i].x, pictures[i].y, pictures[i].w, pictures[i].h);
-
-
             }
-
-
-
-            
-            
+  
             drawFrame();
         }
 
@@ -591,7 +499,6 @@ function clear(c) {
 
 function drawshape(context, shape, imgSrc) {
 
-    // We can skip the drawing of elements that have moved off the screen:
   if (shape.x > WIDTH || shape.y > HEIGHT) return;
     if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
 
@@ -608,7 +515,6 @@ function drawshape(context, shape, imgSrc) {
 function drawshapeRect(context, shape, fill) {
     context.fillStyle = fill;
 
-    // We can skip the drawing of elements that have moved off the screen:
     if (shape.x > WIDTH || shape.y > HEIGHT) return;
     if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
 
@@ -616,7 +522,6 @@ function drawshapeRect(context, shape, fill) {
 }
 
 function drawFrame() {
-
 
     for (var i = 0; i < 400; i += 100) {
 
@@ -634,28 +539,75 @@ function drawFrame() {
     }
 }
 
+function getMouse(e) {
+
+    var element = canvas, offsetX = 0, offsetY = 0;
+
+    if (element.offsetParent) {
+        do {
+            offsetX += element.offsetLeft;
+            offsetY += element.offsetTop;
+        } while ((element = element.offsetParent));
+    }
+
+    offsetX += stylePaddingLeft;
+    offsetY += stylePaddingTop;
+
+    offsetX += styleBorderLeft;
+    offsetY += styleBorderTop;
+
+    mx = e.pageX - offsetX;
+    my = e.pageY - offsetY
+
+}
+
+function myMove(e) {
+
+    if (isDrag && timeOver == false) {
+
+        getMouse(e);
+        mySel.x = mx - offsetx;
+        mySel.y = my - offsety;
+
+        if (mySel.x < 0) {
+
+            mySel.x = 0;
+        }
+
+        if (mySel.x > 520) {
+
+            mySel.x = 520;
+        }
+
+        if (mySel.y < 0) {
+
+            mySel.y = 0;
+        }
+
+        if (mySel.y > 320) {
+
+            mySel.y = 320;
+        }
+
+        invalidate();
+    }
+}
 
 
 function myDown(e) {
-
-    
+   
     isClicked = true;
 
     if (done == false && isPaused == false && timeOver ==false) {
         getMouse(e);
-        //clear(gctx);
         var l = pictures.length;
         for (var i = l - 1; i >= 0; i--) {
-            // draw shape onto ghost context
-            drawshapeRect(gctx, pictures[i], 'black');
 
-            // get image data at the mouse x,y pixel
+            drawshapeRect(gctx, pictures[i], 'black');
             var imageData = gctx.getImageData(mx, my, 10, 10);
 
-
-
             var index = (mx + my * imageData.width) * 4;
-            // if the mouse pixel exists, select and break
+
             if (imageData.data[3] > 0) {
                 if ((pictures[i].x > pictures[i].originalX + 20 || pictures[i].x < pictures[i].originalX - 20) || (pictures[i].y > pictures[i].originalY + 20 || pictures[i].y < pictures[i].originalY - 20)) {
                     mySel = pictures[i];
@@ -671,61 +623,102 @@ function myDown(e) {
                 }
             }
         }
-        // havent returned means we have selected nothing
+
         mySel = null;
-        // clear the ghost canvas for next time
         clear(gctx);
-        // invalidate because we might need the selection border to disappear
         invalidate();
     }
 }
 
-function getMouse(e) {
+function myUp() {
 
-    var element = canvas, offsetX = 0, offsetY = 0;
+    isClicked = false;
 
-    if (element.offsetParent) {
-        do {
-            offsetX += element.offsetLeft;
-            offsetY += element.offsetTop;
-        } while ((element = element.offsetParent));
+    if (done == false && timeOver == false && isPaused == false) {
+        isDrag = false;
+        canvas.onmousemove = null;
+        check();
+        if (mySel.onRightPosition == true) {
+
+            var snd = new Audio("Content/sounds/correct.mp3");
+            snd.play();
+            animateRightPosition(mySel);
+        }
+
+        if (mySel.onRightPosition == false) {
+
+            var snd = new Audio("Content/sounds/wrong.mp3");
+            snd.play();
+        }
+
+        mySel = null;
+        invalidate();
+    }
+}
+
+function invalidate() {
+    canvasValid = false;
+}
+
+function updateTimeBoard() {
+
+    if (miliSeconds < 1) {
+
+        miliSeconds = 10;
+        seconds -= 1;
+    }
+    else {
+
+        miliSeconds -= 1;
     }
 
-    // Add padding and border style widths to offset
-    offsetX += stylePaddingLeft;
-    offsetY += stylePaddingTop;
+    timeBoard.innerHTML = seconds + ' : ' + miliSeconds;
 
-    offsetX += styleBorderLeft;
-    offsetY += styleBorderTop;
+    if (seconds == 0 && miliSeconds == 0) {
 
-    mx = e.pageX - offsetX;
-    my = e.pageY - offsetY
+        gameOver();
+        timeOver = true;
+    }
+};
+
+
+function gameOver() {
+
+    if (points != 0) {
+
+        SaveScores(points);
+    }
+
+    pictures = [];
+    mySel = null;
+    points = 0;
+    clear(ctx);
+    drawGameOverScreen();
+    pauseBtn.style.display = 'none';
+    playAgainBtn.style.display = 'block';
+    isDrag = false;
+
+    var snd = new Audio("Content/sounds/gameOver.mp3");
+    snd.play();
 
 }
 
-function addPicture(x, y, w, h, imgSource, originalX, originalY, mixedX, mixedY) {
+function updateScoreBoard() {
 
-    var rect = new Picture();
-    rect.x = x;
-    rect.y = y;
-    rect.w = w;
-    rect.h = h;
-    rect.imgSource = imgSource;
-    rect.originalX = originalX;
-    rect.originalY = originalY;
-    rect.onRightPosition = false;
-    rect.mixedX = mixedX;
-    rect.mixedY = mixedY;
-    pictures.push(rect);
-    invalidate();
+    points += level_points;
+
+
+    scoreBoard.innerHTML = points;
+    levelBoard.innerHTML = level;
 }
+
 
 function loadTimeBoard(nameTextBoxId) {
+
     var nameTextBoxElm = document.getElementById(nameTextBoxId);
     timeBoard = nameTextBoxElm;
 
 }
-
 
 function loadScoreBoard(nameTextBoxId) {
 
@@ -743,206 +736,10 @@ function loadLevel(nameTextBoxId) {
 }
 
 
-function myMove(e) {
-
-
-    if (isDrag && timeOver == false) {
-
-        getMouse(e);
-
-        mySel.x = mx - offsetx;
-        mySel.y = my - offsety;
-
-
-        if (mySel.x < 0) {    
-
-            mySel.x = 0;
-            
-        }
-
-        if (mySel.x > 520) {
-
-            mySel.x = 520;
-
-        }
-
-        if (mySel.y < 0) {
-
-
-            mySel.y = 0;
-        }
-
-        if (mySel.y > 320) {
-
-
-            mySel.y = 320;
-
-        }
-
-      
-
-        // something is changing position so we better invalidate the canvas!
-        invalidate();
-    }
-
-}
-
-
-
-function myUp() {
-
-    isClicked = false;
-    if (done == false && timeOver == false && isPaused == false) {
-        isDrag = false;
-        canvas.onmousemove = null;
-        check();
-        console.log(mySel.onRightPosition);
-        if (mySel.onRightPosition ==true) {
-
-            var snd = new Audio("Content/sounds/correct.mp3");
-            snd.play();
-
-            animateRightPosition(mySel);
-
-
-        }
-
-        if (mySel.onRightPosition == false) {
-        
-            var snd = new Audio("Content/sounds/wrong.mp3");
-            snd.play();
-        
-        }
-
-
-
-        mySel = null;
-        invalidate();
-     
-    }
-
-}
-
-function invalidate() {
-    canvasValid = false;
-}
-
-function setImg(response) {
-
-    img_source = response;
-
-    if (img_source.length == 0) {
-
-
-        alert("Failed to load image data please try again !")
-        location.reload();
-
-    } else {
-
-    startGame();
-
-    
-     
-
-
-       
-
-    }
-
-
-   
-
-}
-
-
-
-function updateTimeBoard() {
-
-    if (miliSeconds < 1) {
-
-        miliSeconds = 10;
-        seconds -= 1;
-    }
-    else {
-
-        miliSeconds -= 1;
-    }
-
-    timeBoard.innerHTML = seconds + ' : ' + miliSeconds;
-
-    if (seconds == 0 && miliSeconds < 1) {
-
-
-        gameOver();
-        timeOver = true;
-
-
-    }
-};
-
-
-function gameOver() {
-
-    if (points != 0) {
-        SaveScores();
-
-    }
-
-    pictures = [];
-    mySel = null;
-    points = 0;
-    clear(ctx);
-    drawGameOverScreen();
-    pauseBtn.style.display = 'none';
-    playAgainBtn.style.display = 'block';
-    isDrag = false;
-
-    var snd = new Audio("Content/sounds/gameOver.mp3");
-    snd.play();
-    console.log(points);
-
-
-
-}
-
-
-function updateScoreBoard() {
-
-
-    points += level_points;
-
-
-    scoreBoard.innerHTML = points;
-    levelBoard.innerHTML = level;
-};
-function setLevelData(level) {
-
-    console.log("Ajax-a izvika setLevelData");
-
-    if (parseInt(level[0]) < 9 ) {
-
-        level_img_type = level[0];
-        level_points = parseInt(level[1]);
-
-
-    } else {
-
-        level_img_type = 8;
-        level_points = 50;
-
-    }
-}
-
-
 window.onbeforeunload = function () {
 
     if (points !== 0) {
-        SaveScores();
+        SaveScores(points);
 
-    }
-
-    
-
-     
- 
+    }   
 }

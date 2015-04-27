@@ -22,28 +22,28 @@ namespace project
             if (System.Web.HttpContext.Current.User.Identity.IsAuthenticated)
             {
 
-                List<String> badges = project.Models.UsersGameModel.getUserBadges();
+                List<Badge> badges = project.Models.UsersGameModel.getUserBadges();
 
                 if (badges.Count() == 1)
                 {
 
-                    img1.ImageUrl = badges[0];
+                    img1.ImageUrl = badges[0].img_src;
 
                 }
 
                 else if (badges.Count() == 2)
                 {
 
-                    img1.ImageUrl = badges[0];
-                    img2.ImageUrl = badges[1];
+                    img1.ImageUrl = badges[0].img_src;
+                    img2.ImageUrl = badges[1].img_src;
 
                 }
                 else if (badges.Count() == 3)
                 {
 
-                    img1.ImageUrl = badges[0];
-                    img2.ImageUrl = badges[1];
-                    img3.ImageUrl = badges[2];
+                    img1.ImageUrl = badges[0].img_src;
+                    img2.ImageUrl = badges[1].img_src;
+                    img3.ImageUrl = badges[2].img_src;
 
 
                 }
@@ -57,8 +57,6 @@ namespace project
             }
             else
             {
-
-
                 badgeLabel.Text = " You don`t have any badges yet!";
 
             }

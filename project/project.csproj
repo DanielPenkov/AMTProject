@@ -167,6 +167,7 @@
     <Content Include="Content\sounds\in.mp3" />
     <Content Include="Content\sounds\start.mp3" />
     <Content Include="Content\sounds\wrong.mp3" />
+    <Content Include="Scripts\GameLogic\ajaxRequests.js" />
     <Content Include="Statistics.aspx" />
     <Content Include="Account\Login.aspx" />
     <Content Include="Account\Manage.aspx" />
@@ -203,7 +204,7 @@
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\game.js" />
+    <Content Include="Scripts\GameLogic\game.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />

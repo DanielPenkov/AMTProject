@@ -14,9 +14,7 @@ namespace project
         protected void Page_Load(object sender, EventArgs e)
         {
           
-
-                setBadge();           
-               
+                setBadge();                        
         }
 
         [System.Web.Services.WebMethod]
@@ -50,34 +48,32 @@ namespace project
 
         public void setBadge() {
 
-          
-
             if (System.Web.HttpContext.Current.User.Identity.IsAuthenticated)
             {
-                List<String> badges = project.Models.UsersGameModel.getUserBadges();
+                List<Badge> badges = project.Models.UsersGameModel.getUserBadges();
 
 
                 if (badges.Count() == 1) {
 
-                    img1.ImageUrl = badges[0];
-                    LabelBadge1.Text = "Highest Score";
+                    img1.ImageUrl = badges[0].img_src;
+                    LabelBadge1.Text = badges[0].name;
                 }
 
                 else if (badges.Count() == 2)
                 {
-                    img1.ImageUrl = badges[0];
-                    LabelBadge1.Text = "Highest Score";
-                    img2.ImageUrl = badges[1];
-                    LabelBadge2.Text = "Best Player";
+                    img1.ImageUrl = badges[0].img_src;
+                    LabelBadge1.Text = badges[0].name;
+                    img2.ImageUrl = badges[1].img_src;
+                    LabelBadge2.Text = badges[1].name;
                 }
                 else if (badges.Count() == 3)
                 {
-                    img1.ImageUrl = badges[0];
-                    LabelBadge1.Text = "Highest Score";
-                    img2.ImageUrl = badges[1];
-                    LabelBadge2.Text = "Best Player";
-                    img3.ImageUrl = badges[2];
-                    LabelBadge3.Text = "Player of the week";
+                    img1.ImageUrl = badges[0].img_src;
+                    LabelBadge1.Text = badges[0].name;
+                    img2.ImageUrl = badges[1].img_src;
+                    LabelBadge2.Text = badges[1].name;
+                    img3.ImageUrl = badges[2].img_src;
+                    LabelBadge3.Text = badges[2].name;
 
 
                 }

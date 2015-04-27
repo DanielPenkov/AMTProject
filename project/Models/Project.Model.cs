@@ -157,8 +157,6 @@ namespace project.Models
                         select new { score = g.Sum(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r=>r.score).ToList();
 
 
-            // users = result.ToList();
-
             var scoreBoard = new Dictionary<string, string>();
 
             foreach (var user in list)
@@ -170,8 +168,6 @@ namespace project.Models
             }
 
             return scoreBoard;
-
-
         }
 
         public static Dictionary<String, String> GetBestUsersTotal()
@@ -351,12 +347,12 @@ namespace project.Models
             }
         }
 
-        public static List<String> getUserBadges()
+        public static List<Badge> getUserBadges()
         {       
                 var usrName = HttpContext.Current.User.Identity.Name;
                 var usrId = ctx.AspNetUsers.FirstOrDefault(r => r.UserName == usrName).Id;
-                List<String> badges = new List<string>();
-                badges = ctx.Achevements.Where(a => a.AspNetUser.Id == usrId).Select(s => s.Badge.img_src).ToList();
+                List<Badge> badges = new List<Badge>();
+                badges = ctx.Achevements.Where(a => a.AspNetUser.Id == usrId).Select(s => s.Badge).ToList();
                 return badges;
          }
       }
