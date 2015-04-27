@@ -211,7 +211,7 @@
 
                 var data = "{imgTypeId :" + levelId + "}";
 
-                console.log("Vika GET AJAX");
+                console.log("Posle vika GetImages");
                 $.ajax({
                     type: "POST",
                     url: "Default.aspx/GetImage",
@@ -234,7 +234,7 @@
 
                 var data = "{id :" + levelId + "}";
 
-                console.log("Vika GET AJAX");
+                console.log("Vika GETLevel AJAX");
                 $.ajax({
                     type: "POST",
                     url: "Default.aspx/GetLevel",

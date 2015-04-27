@@ -16,7 +16,7 @@ var isClicked;
 var done = false;
 var offsetx, offsety;
 var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
-var img_source;
+var img_source = [];
 var isDrag = false;
 var mx, my; // mouse coordinates
 var demo;
@@ -219,14 +219,48 @@ function init() {
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
 
-    // To be renamed  - AJAX
     getLevel(level);
 
-    //GetImage(level_img_type);
+   
+    
+
+}
+
+
+//function loadGame() {
+
+    
+//    var imageObj = new Image();
+//    imageObj.src = 'Content/images/loading.jpg';
+
+//    imageObj.addEventListener("load", function () {
+//        ctx.drawImage(imageObj, 0, 0);
+//    }, false);
+
+  
+//    //if (img_source.length == 0) {
+
+//    //    loadGame();
+
+//    //}
+//    //else {
+
+    
+//    setTimeout(startGame, 1500);
+//    console.dir("kartinki  " + img_source.length);
+     
+
+//    //}
 
 
 
-    drawLoadScreen();
+
+//}
+
+
+function startGame() {
+
+    drawMemorizeScreen();
 
     setTimeout(function () {
         loadDemoImages();
@@ -246,10 +280,11 @@ function init() {
         pauseBtn.style.display = 'block';
         exitBtn.style.display = 'block';
         loadMixedImages();
-      
+
     }, 6000);
 
     setTime();
+
 
 }
 
@@ -338,7 +373,6 @@ function loadDemoImages() {
                     tempY = newImgPosition.y;
 
                 }
-
             }
 
             addPicture(tempX + margin, tempY + margin, 80, 80, img_source[i], tempX + margin, tempY + margin, 0, 0);
@@ -452,7 +486,7 @@ function animateRightPosition(picture) {
 
 }
 
-function drawLoadScreen() {
+function drawMemorizeScreen() {
 
     var imageObj = new Image();
     imageObj.src = 'Content/images/memorizeit.jpg';
@@ -795,11 +829,28 @@ function invalidate() {
 
 function setImg(response) {
 
-
-
-    console.dir(response);
-
     img_source = response;
+
+    if (img_source.length == 0) {
+
+
+        alert("Failed to load image data please try again !")
+        location.reload();
+
+    } else {
+
+    startGame();
+
+    
+     
+
+
+       
+
+    }
+
+
+   
 
 }
 
@@ -866,14 +917,13 @@ function updateScoreBoard() {
 };
 function setLevelData(level) {
 
-
+    console.log("Ajax-a izvika setLevelData");
 
     if (parseInt(level[0]) < 9 ) {
 
         level_img_type = level[0];
         level_points = parseInt(level[1]);
-        console.log("Image type " + level[0]);
-        console.log(" " + level[1]);
+
 
     } else {
 
