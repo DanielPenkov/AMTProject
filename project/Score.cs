@@ -11,19 +11,13 @@ namespace project
 {
     using System;
     using System.Collections.Generic;
-
-    public partial class Score : IComparable<Score>
+    
+    public partial class Score
     {
         public string user_id { get; set; }
         public System.DateTime date_scored { get; set; }
         public int score1 { get; set; }
     
         public virtual AspNetUser AspNetUser { get; set; }
-
-        public int CompareTo(Score score)
-        {
-   
-            return score.score1.CompareTo(this.score1);
-        }
     }
 }

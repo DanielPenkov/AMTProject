@@ -11,7 +11,7 @@ namespace project
 {
     using System;
     using System.Collections.Generic;
-
+    
     public partial class AspNetUser
     {
         public AspNetUser()
@@ -26,12 +26,8 @@ namespace project
         public string SecurityStamp { get; set; }
         public string Discriminator { get; set; }
         public string Email { get; set; }
-   
     
         public virtual ICollection<Achevement> Achevements { get; set; }
         public virtual ICollection<Score> Scores { get; set; }
-
-
-
     }
 }

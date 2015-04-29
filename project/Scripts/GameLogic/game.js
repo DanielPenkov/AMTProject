@@ -679,7 +679,8 @@ function updateTimeBoard() {
 
     timeBoard.innerHTML = seconds + ' : ' + miliSeconds;
 
-    if (seconds == 0 && miliSeconds == 0) {
+    if (seconds <= 0 && miliSeconds <= 0) {
+        timeBoard.innerHTML = '0 : 0';
 
         gameOver();
         timeOver = true;

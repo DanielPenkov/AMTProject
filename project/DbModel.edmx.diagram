@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="50cd206cb9b5454c86558b9bb06a27d2" Name="Diagram1">
+      <Diagram DiagramId="50cd206cb9b5454c86558b9bb06a27d2" Name="Diagram1" ZoomLevel="86">
         <EntityTypeShape EntityType="DbModel.Achevement" Width="1.5" PointX="8" PointY="2.375" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModel.AspNetUser" Width="1.5" PointX="5.75" PointY="2" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModel.Badge" Width="1.5" PointX="5.75" PointY="7.375" IsExpanded="true" />
