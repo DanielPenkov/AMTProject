@@ -106,6 +106,11 @@ namespace project.Models
         public static List<string> GetLevel(int lvlId)
         {
 
+            if (lvlId > 9) {
+
+                lvlId = 8;
+            }
+
             List<string> levelData = new List<string>();
 
 
