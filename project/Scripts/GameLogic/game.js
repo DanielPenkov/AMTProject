@@ -6,7 +6,7 @@ var canvas, ctx, ghostcanvas, gctx, WIDTH, HEIGHT, mySel, isClicked, offsetx, of
 
 
 var pictures = [];
-var level = 9;
+var level = 0;
 var timeOver = false;
 var points = 0;
 var mySelColor = '#CC0000';
@@ -159,13 +159,13 @@ function setLevelData(level) {
 
         level_img_type = level[0];
         level_points = parseInt(level[1]);
-        console.log("here");
+      
 
     } else {
 
         level_img_type = 8;
         level_points = 50;
-        console.log(">9");
+   
 
     }
 }
