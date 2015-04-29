@@ -345,31 +345,31 @@ function setTime() {
 
     switch (level) {
         case 1:
-            seconds = 20;
+            seconds = 10;
             break;
         case 2:
-            seconds = 25;
+            seconds = 15;
             break;
         case 3:
-            seconds = 30;
+            seconds = 20;
             break
         case 4:
-            seconds = 35;
+            seconds = 25;
             break
         case 5:
-            seconds = 40;
+            seconds = 30;
             break
         case 6:
-            seconds = 45;
+            seconds = 30;
             break
         case 7:
-            seconds = 50;
+            seconds = 30;
             break
         case 8:
-            seconds = 55;
+            seconds = 30;
             break
         default:
-            seconds = 60;
+            seconds = 30;
     }
 }
 
@@ -646,12 +646,14 @@ function myUp() {
             var snd = new Audio("Content/sounds/correct.mp3");
             snd.play();
             animateRightPosition(mySel);
+            seconds += 2;
         }
 
         if (mySel.onRightPosition == false) {
 
             var snd = new Audio("Content/sounds/wrong.mp3");
             snd.play();
+            seconds -= 2;
         }
 
         mySel = null;
