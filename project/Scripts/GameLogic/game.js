@@ -711,8 +711,10 @@ function gameOver() {
 
 function updateScoreBoard() {
 
-    points += level_points;
 
+   
+    points += level_points+ seconds;
+    console.log(seconds);
 
     scoreBoard.innerHTML = points;
     levelBoard.innerHTML = level;

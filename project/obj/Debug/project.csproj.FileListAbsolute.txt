@@ -52,4 +52,3 @@ C:\Users\Daniel\documents\visual studio 2013\Projects\project\project\bin\Micros
 C:\Users\Daniel\documents\visual studio 2013\Projects\project\project\bin\Microsoft.Owin.Security.OAuth.xml
 C:\Users\Daniel\documents\visual studio 2013\Projects\project\project\obj\Debug\project.dll
 C:\Users\Daniel\documents\visual studio 2013\Projects\project\project\obj\Debug\project.pdb
-C:\Users\Daniel\documents\visual studio 2013\Projects\project\project\obj\Debug\project.csprojResolveAssemblyReference.cache
