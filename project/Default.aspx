@@ -181,7 +181,15 @@
         <script type="text/javascript">
             loadTimeBoard("<%=timeboard.ClientID %>");
             loadScoreBoard("<%=scoreboard.ClientID %>");
-            loadLevel("<%=levelLbl.ClientID %>");
+
+
+            
+          
+
+            var levelLbl = document.getElementById("<%=levelLbl.ClientID %>");
+            
+
+            
         </script>
 
     </div>

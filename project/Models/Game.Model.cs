@@ -10,7 +10,6 @@ namespace project.Models
 {
     public class UsersGameModel
     {
-
         public static DbContextGame ctx = new DbContextGame();
 
         public static void AddScores(int scoreResult)
@@ -21,7 +20,6 @@ namespace project.Models
 
             Score score = new Score()
             {
-
                 user_id = usrId,
                 date_scored = DateTime.Now,
                 score1 = scoreResult
@@ -34,15 +32,11 @@ namespace project.Models
 
         public static Dictionary<String, String> GetBestUsers()
         {
-
             var list = (from score in ctx.Scores
                         group score by score.AspNetUser.UserName into g
-                        select new { max_score = g.Max(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r=>r.max_score).Take(10).ToList();
-
+                        select new { max_score = g.Max(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r => r.max_score).Take(10).ToList();
 
             var scoreBoard = new Dictionary<string, string>();
-            
-
 
             foreach (var user in list)
             {
@@ -59,7 +53,6 @@ namespace project.Models
             List<string> imgSrcList = new List<string>();
             List<Image> imagesArray = ctx.Images.Where(i => i.type_id == typeId).ToList();
             int elements = 0;
-
 
             switch (typeId)
             {
@@ -91,13 +84,12 @@ namespace project.Models
             }
 
             Random rnd = new Random();
-            int startRnd = rnd.Next(0, (imagesArray.Count() - elements ));
+            int startRnd = rnd.Next(0, (imagesArray.Count() - elements));
 
             for (int i = 0; i < elements; i++)
             {
-                imgSrcList.Add(imagesArray[(startRnd+i)].src);
+                imgSrcList.Add(imagesArray[(startRnd + i)].src);
             }
-
 
             return imgSrcList;
         }
@@ -105,38 +97,30 @@ namespace project.Models
 
         public static List<string> GetLevel(int lvlId)
         {
-
-            if (lvlId >= 9) {
-
+            if (lvlId >= 9)
+            {
                 lvlId = 8;
             }
 
             List<string> levelData = new List<string>();
-
-
             Level level = ctx.Levels.Where(l => l.id == lvlId).FirstOrDefault();
-
 
             levelData.Add(level.type_img.ToString());
             levelData.Add(level.score.ToString());
 
             return levelData;
-
         }
 
 
         public static Dictionary<String, String> MyResults()
         {
-
             Dictionary<String, String> myResults = new Dictionary<String, String>();
-
             var usrName = HttpContext.Current.User.Identity.Name;
             var usrId = ctx.AspNetUsers.FirstOrDefault(r => r.UserName == usrName).Id;
 
-            if (ctx.Scores.Where(u => u.AspNetUser.Id == usrId).Count()>0)
+            if (ctx.Scores.Where(u => u.AspNetUser.Id == usrId).Count() > 0)
             {
                 DateTime week = DateTime.Now.AddDays(-7);
-
                 string max_points = ctx.Scores.Where(u => u.AspNetUser.Id == usrId).Max(s => s.score1).ToString();
                 string total_points = ctx.Scores.Where(u => u.AspNetUser.Id == usrId).Sum(s => s.score1).ToString();
                 string total_points_week = ctx.Scores.Where(u => u.date_scored > week && u.AspNetUser.Id == usrId).Sum(s => s.score1).ToString();
@@ -144,7 +128,6 @@ namespace project.Models
                 myResults.Add("Highest Score", max_points);
                 myResults.Add("Total Points", total_points);
                 myResults.Add("Total Points This Week", total_points_week);
-            
             }
 
             return myResults;
@@ -153,14 +136,12 @@ namespace project.Models
 
         public static Dictionary<String, String> GetBestUsersWeek()
         {
-
             DateTime week = DateTime.Now.AddDays(-7);
 
             var list = (from score in ctx.Scores
                         where (score.date_scored > week)
                         group score by score.AspNetUser.UserName into g
-                        select new { score = g.Sum(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r=>r.score).ToList();
-
+                        select new { score = g.Sum(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r => r.score).ToList();
 
             var scoreBoard = new Dictionary<string, string>();
 
@@ -169,7 +150,6 @@ namespace project.Models
                 string username = user.name;
                 string scores = user.score.ToString();
                 scoreBoard.Add(username, scores);
-
             }
 
             return scoreBoard;
@@ -177,13 +157,9 @@ namespace project.Models
 
         public static Dictionary<String, String> GetBestUsersTotal()
         {
-
             var list = (from score in ctx.Scores
                         group score by score.AspNetUser.UserName into g
-                        select new { score = g.Sum(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r=>r.score).ToList();
-
-
-            // users = result.ToList();
+                        select new { score = g.Sum(s => s.score1), name = g.FirstOrDefault().AspNetUser.UserName }).OrderByDescending(r => r.score).ToList();
 
             var scoreBoard = new Dictionary<string, string>();
 
@@ -192,36 +168,24 @@ namespace project.Models
                 string username = user.name;
                 string scores = user.score.ToString();
                 scoreBoard.Add(username, scores);
-
             }
 
             return scoreBoard;
-
-
         }
-
 
         public static void updateHighestScoreBadge()
         {
-
-
             var usrId = ctx.Scores.OrderByDescending(s => s.score1).FirstOrDefault().AspNetUser.Id;
 
             if (ctx.Achevements.Where(a => a.badge_id == 1).Count() > 0)
             {
-
                 if (usrId != ctx.Achevements.Where(a => a.badge_id == 1).FirstOrDefault().AspNetUser.Id)
                 {
-
-
                     var lachev = ctx.Achevements.Where(a => a.badge_id == 1).FirstOrDefault();
                     ctx.Achevements.Remove(lachev);
                     ctx.SaveChanges();
-
-
                     Achevement achev = new Achevement()
                     {
-
                         user_id = usrId,
                         badge_id = 1,
                         date = DateTime.Now
@@ -230,13 +194,11 @@ namespace project.Models
                     ctx.Achevements.Add(achev);
                     ctx.SaveChanges();
                 }
-
             }
-            else {
-
+            else
+            {
                 Achevement achev = new Achevement()
                 {
-
                     user_id = usrId,
                     badge_id = 1,
                     date = DateTime.Now
@@ -244,45 +206,27 @@ namespace project.Models
 
                 ctx.Achevements.Add(achev);
                 ctx.SaveChanges();
-            
-            
-            
             }
 
         }
 
-        public static  void updateBestPlayerBadge()
+        public static void updateBestPlayerBadge()
         {
-                var usrId = (from score in ctx.Scores
-                             group score by score.AspNetUser.UserName into g
-                               select new { score = g.Sum(s => s.score1), id = g.FirstOrDefault().AspNetUser.Id }).OrderByDescending(r=>r.score).FirstOrDefault().id;
-                          
+            var usrId = (from score in ctx.Scores
+                         group score by score.AspNetUser.UserName into g
+                         select new { score = g.Sum(s => s.score1), id = g.FirstOrDefault().AspNetUser.Id }).OrderByDescending(r => r.score).FirstOrDefault().id;
 
 
-                if (ctx.Achevements.Where(a => a.badge_id == 2).Count() > 0)
+
+            if (ctx.Achevements.Where(a => a.badge_id == 2).Count() > 0)
+            {
+
+                if (usrId != ctx.Achevements.Where(a => a.badge_id == 2).FirstOrDefault().AspNetUser.Id)
                 {
 
-                    if (usrId != ctx.Achevements.Where(a => a.badge_id == 2).FirstOrDefault().AspNetUser.Id)
-                    {
-
-                        var lachev = ctx.Achevements.Where(a => a.badge_id == 2).FirstOrDefault();
-                        ctx.Achevements.Remove(lachev);
-                        ctx.SaveChanges();
-
-                        Achevement achev = new Achevement()
-                        {
-
-                            user_id = usrId,
-                            badge_id = 2,
-                            date = DateTime.Now
-                        };
-
-                        ctx.Achevements.Add(achev);
-                        ctx.SaveChanges();
-                    }
-
-                }
-                else {
+                    var lachev = ctx.Achevements.Where(a => a.badge_id == 2).FirstOrDefault();
+                    ctx.Achevements.Remove(lachev);
+                    ctx.SaveChanges();
 
                     Achevement achev = new Achevement()
                     {
@@ -292,13 +236,25 @@ namespace project.Models
                     };
 
                     ctx.Achevements.Add(achev);
-                    ctx.SaveChanges();                               
-                }              
+                    ctx.SaveChanges();
+                }
+            }
+            else
+            {
+                Achevement achev = new Achevement()
+                {
+                    user_id = usrId,
+                    badge_id = 2,
+                    date = DateTime.Now
+                };
+
+                ctx.Achevements.Add(achev);
+                ctx.SaveChanges();
+            }
         }
 
-        public static  void updatePlayerWeekBadge()
+        public static void updatePlayerWeekBadge()
         {
-
             DateTime week = DateTime.Now.AddDays(-7);
 
             var usrId = (from score in ctx.Scores
@@ -308,10 +264,8 @@ namespace project.Models
 
             if (ctx.Achevements.Where(a => a.badge_id == 3).Count() > 0)
             {
-
                 if (usrId != ctx.Achevements.Where(a => a.badge_id == 3).FirstOrDefault().AspNetUser.Id)
                 {
-
                     var lachev = ctx.Achevements.Where(a => a.badge_id == 3).FirstOrDefault();
                     ctx.Achevements.Remove(lachev);
                     ctx.SaveChanges();
@@ -328,8 +282,8 @@ namespace project.Models
                 }
 
             }
-            else {
-
+            else
+            {
                 Achevement achev = new Achevement()
                 {
                     user_id = usrId,
@@ -338,13 +292,15 @@ namespace project.Models
                 };
 
                 ctx.Achevements.Add(achev);
-                ctx.SaveChanges();         
+                ctx.SaveChanges();
             }
         }
 
-        public static void updateBadges() {
+        public static void updateBadges()
+        {
 
-            if (ctx.Scores.Count() > 0) {
+            if (ctx.Scores.Count() > 0)
+            {
 
                 updateBestPlayerBadge();
                 updateHighestScoreBadge();
@@ -353,13 +309,13 @@ namespace project.Models
         }
 
         public static List<Badge> getUserBadges()
-        {       
-                var usrName = HttpContext.Current.User.Identity.Name;
-                var usrId = ctx.AspNetUsers.FirstOrDefault(r => r.UserName == usrName).Id;
-                List<Badge> badges = new List<Badge>();
-                badges = ctx.Achevements.Where(a => a.AspNetUser.Id == usrId).Select(s => s.Badge).ToList();
-                return badges;
-         }
-      }
+        {
+            var usrName = HttpContext.Current.User.Identity.Name;
+            var usrId = ctx.AspNetUsers.FirstOrDefault(r => r.UserName == usrName).Id;
+            List<Badge> badges = new List<Badge>();
+            badges = ctx.Achevements.Where(a => a.AspNetUser.Id == usrId).Select(s => s.Badge).ToList();
+            return badges;
+        }
+    }
 
 }

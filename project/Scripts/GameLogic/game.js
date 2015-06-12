@@ -1,23 +1,36 @@
 
 var canvas, ctx, ghostcanvas, gctx, WIDTH, HEIGHT, mySel, isClicked, offsetx, offsety,
-    stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop, mx, my, 
-    demo, seconds,  miliSeconds, timeBoard, scoreBoard, levelBoard, level_points, 
-    counter, exitBtn, nextBtn, resumeBtn, pauseBtn, playAgainBtn, startBtn, infoBtn;
-
+    stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop, mx, my,
+    demo, seconds, miliSeconds, timeBoard, scoreBoard,
+    counter, levelObject;
 
 var pictures = [];
-var level = 0;
 var timeOver = false;
 var points = 0;
-var mySelColor = '#CC0000';
-var mySelWidth = 2;
 var isPaused = false;
-var INTERVAL = 1;
+var INTERVAL = 10;
+var buttons;
 var canvasValid = true;
 var done = false;
-var img_source = [];
 var isDrag = false;
 
+
+
+function loadCanvas() {
+
+    canvas = document.getElementById('canvas');
+    HEIGHT = canvas.height;
+    WIDTH = canvas.width;
+    ctx = canvas.getContext('2d');
+    ghostcanvas = document.createElement('canvas');
+    ghostcanvas.height = HEIGHT;
+    ghostcanvas.width = WIDTH;
+    gctx = ghostcanvas.getContext('2d');
+    drawStartScreen();
+    buttons = new Button();
+    buttons.setButtons();
+
+}
 
 function Picture() {
     this.x = 0;
@@ -32,109 +45,11 @@ function Picture() {
     this.mixedY;
 }
 
-function loadCanvas() {
-
-    canvas = document.getElementById('canvas');
-    HEIGHT = canvas.height;
-    WIDTH = canvas.width;
-    ctx = canvas.getContext('2d');
-    ghostcanvas = document.createElement('canvas');
-    ghostcanvas.height = HEIGHT;
-    ghostcanvas.width = WIDTH;
-    gctx = ghostcanvas.getContext('2d');
-    drawStartScreen();
-    manageButtons();
-}
-
-function drawStartScreen() {
-
-    var imageObj = new Image();
-    imageObj.onload = function () {
-        ctx.drawImage(imageObj, 0, 0);
-    };
-    imageObj.src = 'Content/images/canvas-background.jpg';
-}
-
-
-function manageButtons() {
-
-    startBtn = document.getElementById('button-start');
-    infoBtn = document.getElementById('button-info');
-    exitBtn = document.getElementById('button-exit');
-    pauseBtn = document.getElementById('button-pause');
-    resumeBtn = document.getElementById('button-resume');
-    nextBtn = document.getElementById('button-next');
-    playAgainBtn = document.getElementById('button-play-again');
-
-    startBtn.addEventListener('click', function () { btnClicked('start') }, false);
-    infoBtn.addEventListener('click', function () { btnClicked('info') }, false);
-    exitBtn.addEventListener('click', function () { btnClicked('exit') }, false);
-    pauseBtn.addEventListener('click', function () { btnClicked('pause') }, false);
-    resumeBtn.addEventListener('click', function () { btnClicked('resume') }, false);
-    nextBtn.addEventListener('click', function () { btnClicked('next') }, false);
-    playAgainBtn.addEventListener('click', function () { btnClicked('playAgain') }, false);
-   
-}
-
-function btnClicked(btnName) {
-
-    if (btnName === 'start') {
-
-        var snd = new Audio("Content/sounds/in.mp3");
-        snd.play();
-
-        pauseBtn.style.display = 'block';
-        exitBtn.style.display = 'block';
-        startBtn.style.display = 'none';
-        infoBtn.style.display = 'none';
-        init();
-    }
-    if (btnName === 'pause') {
-
-        pauseBtn.style.display = 'none';
-        resumeBtn.style.display = 'block';
-        isPaused = true;
-    }
-    if (btnName === 'resume') {
-
-        pauseBtn.style.display = 'block';
-        resumeBtn.style.display = 'none';
-        isPaused = false;
-    }
-    if (btnName === 'exit') {
-
-        location.reload();
-    }
-    if (btnName === 'next') {
-
-        pauseBtn.style.display = 'block';
-        exitBtn.style.display = 'block';
-        nextBtn.style.display = 'none';
-        clearTimeout(counter);
-
-        init();
-        done = false;
-    }
-    if (btnName === 'playAgain') {
-
-        pauseBtn.style.display = 'block';
-        exitBtn.style.display = 'block';
-        playAgainBtn.style.display = 'none';
-        done = false;
-        scoreBoard.innerHTML = '0';
-        levelBoard.innerHTML = '0';
-        timeOver = false;
-        level = 0;
-        clearTimeout(counter);
-        init();
-    }
-}
-
 function init() {
 
-    level += 1;
-    pauseBtn.style.display = 'none';
-    exitBtn.style.display = 'none';
+
+    buttons.pauseBtn.style.display = 'none';
+    buttons.exitBtn.style.display = 'none';
     canvas.onselectstart = function () { return false; }
 
     if (document.defaultView && document.defaultView.getComputedStyle) {
@@ -147,43 +62,127 @@ function init() {
     setInterval(draw, INTERVAL);
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
-    getLevel(level);
+
+    levelObject = new Level(parseInt(levelLbl.innerHTML) + 1);
+    levelObject.getLevel();
+
+
+
 }
 
-function setLevelData(level) {
+function draw() {
 
-    var level_img_type;
+    if (canvasValid == false) {
+        ctx.save();
+        clear(ctx);
 
-    if (parseInt(level[0]) < 9) {
+        var l = pictures.length;
+        for (var i = 0; i < l; i++) {
 
+            drawshape(ctx, pictures[i], pictures[i].imgSource);
+            drawFrame();
+        }
 
-        level_img_type = level[0];
-        level_points = parseInt(level[1]);
-      
+        // stroke along the edge of the selected box
+        if (mySel != null) {
+            ctx.strokeStyle = '#CC0000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mySel.x, mySel.y, mySel.w, mySel.h);
+        }
 
-    } else {
-
-        level_img_type = 8;
-        level_points = 50;
-   
-
+        ctx.restore();
+        canvasValid = true;
     }
 }
 
-function setLevelImages(response) {
+function drawshape(context, shape, imgSrc) {
 
-    img_source = response;
+    if (shape.x > WIDTH || shape.y > HEIGHT) return;
+    if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
 
-    if (img_source.length == 0) {
+    var img = new Image();
+    img.src = imgSrc;
 
-        alert("Failed to load image data please try again !")
-        location.reload();
+    img.onload = function () {
 
-    } else {
+        context.drawImage(img, shape.x, shape.y, shape.w, shape.h);
+    };
 
-        startGame();
+}
+
+function drawshapeRect(context, shape, fill) {
+    context.fillStyle = fill;
+
+    if (shape.x > WIDTH || shape.y > HEIGHT) return;
+    if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
+
+    context.fillRect(shape.x, shape.y, shape.w, shape.h);
+}
+
+function drawFrame() {
+
+    for (var i = 0; i < 400; i += 100) {
+
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 400);
+        ctx.stroke();
+
+        if (i < 400) {
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(300, i);
+            ctx.stroke();
+        }
     }
+}
 
+function drawGameOverScreen() {
+
+    pictures = [];
+    var imageObj = new Image();
+
+    imageObj.onload = function () {
+        ctx.drawImage(imageObj, 0, 0);
+    };
+
+    imageObj.src = 'Content/images/gameover.jpg';
+}
+
+function drawCompletedScreen() {
+
+    clear(ctx);
+    var imageObj = new Image();
+    var snd = new Audio("Content/sounds/compl.mp3");
+    pictures = [];
+    isDrag = false;
+
+    imageObj.src = 'Content/images/level-complete.jpg';
+
+    imageObj.onload = function () {
+        ctx.drawImage(imageObj, 0, 0);
+    };
+
+    snd.play();
+}
+
+function drawStartScreen() {
+
+    var imageObj = new Image();
+    imageObj.onload = function () {
+        ctx.drawImage(imageObj, 0, 0);
+    };
+    imageObj.src = 'Content/images/canvas-background.jpg';
+}
+
+function drawMemorizeScreen() {
+
+    var imageObj = new Image();
+    imageObj.src = 'Content/images/memorizeit.jpg';
+
+    imageObj.addEventListener("load", function () {
+        ctx.drawImage(imageObj, 0, 0);
+    }, false);
 }
 
 function startGame() {
@@ -191,8 +190,9 @@ function startGame() {
     drawMemorizeScreen();
 
     setTimeout(function () {
+        var lvl = levelObject.levelNumber;
         loadDemoImages();
-        levelBoard.innerHTML = level;
+        levelLbl.innerHTML = lvl;
     }, 1000);
 
     setTimeout(function () {
@@ -208,8 +208,8 @@ function startGame() {
     }, 5000);
 
     setTimeout(function () {
-        pauseBtn.style.display = 'block';
-        exitBtn.style.display = 'block';
+        buttons.pauseBtn.style.display = 'block';
+        buttons.exitBtn.style.display = 'block';
         loadMixedImages();
 
     }, 6000);
@@ -218,57 +218,41 @@ function startGame() {
 
 }
 
-
-function drawMemorizeScreen() {
-
-    var imageObj = new Image();
-    imageObj.src = 'Content/images/memorizeit.jpg';
-
-    imageObj.addEventListener("load", function () {
-        ctx.drawImage(imageObj, 0, 0);
-    }, false);
-}
-
 function loadDemoImages() {
 
     var newImgPosition;
     var tempX;
     var tempY;
     var margin = 10;
+    newImgPosition = generatePosition();
 
-    newImgPosition = generateOriginalPosition();
-
-    for (var i = 0; i < img_source.length; i++) {
+    for (var i = 0; i < levelObject.img_source.length; i++) {
 
         if (pictures.length == 0) {
 
-            addPicture(newImgPosition.x + margin, newImgPosition.y + margin, 80, 80, img_source[i], newImgPosition.x + margin, newImgPosition.y + margin, 0, 0);
-
+            addPicture(newImgPosition.x + margin, newImgPosition.y + margin, 80, 80,
+                levelObject.img_source[i], newImgPosition.x + margin, newImgPosition.y + margin, 0, 0);
         } else {
-
-            newImgPosition = generateOriginalPosition();
+            newImgPosition = generatePosition();
             tempX = newImgPosition.x;
             tempY = newImgPosition.y;
 
             for (var a = 0 ; a < pictures.length; a += 1) {
 
                 if (pictures[a].originalX == (tempX + margin) && pictures[a].originalY == (tempY + margin)) {
-
                     a = -1;
-                    newImgPosition = generateOriginalPosition();
+                    newImgPosition = generatePosition();
                     tempX = newImgPosition.x;
                     tempY = newImgPosition.y;
                 }
             }
-
-            addPicture(tempX + margin, tempY + margin, 80, 80, img_source[i], tempX + margin, tempY + margin, 0, 0);
+            addPicture(tempX + margin, tempY + margin, 80, 80, levelObject.img_source[i], tempX + margin, tempY + margin, 0, 0);
         }
     }
-
     demo = true;
 }
 
-function generateOriginalPosition() {
+function generatePosition() {
 
     var randomOriginalX = Math.floor((Math.random() * 3)) * 100;
     var randomOriginalY = Math.floor((Math.random() * 4)) * 100;
@@ -329,21 +313,14 @@ function loadMixedImages() {
     countTime();
 }
 
-function countTime() {
-
-    counter = setInterval(function () {
-
-        if (done == false && isPaused == false && timeOver == false) {
-            updateTimeBoard();
-        }
-    }, 100);
+function invalidate() {
+    canvasValid = false;
 }
-
 
 function setTime() {
     miliSeconds = 0;
 
-    switch (level) {
+    switch (levelObject.levelNumber) {
         case 1:
             seconds = 10;
             break;
@@ -373,6 +350,16 @@ function setTime() {
     }
 }
 
+function countTime() {
+
+    counter = setInterval(function () {
+
+        if (done == false && isPaused == false && timeOver == false) {
+            updateTimeBoard();
+        }
+    }, 100);
+}
+
 function check() {
 
     if (demo == false && isClicked == false) {
@@ -382,29 +369,31 @@ function check() {
 
         for (var i = l - 1; i >= 0; i--) {
 
-            if ((pictures[i].x > pictures[i].originalX + 30 || pictures[i].x < pictures[i].originalX - 30) || (pictures[i].y > pictures[i].originalY + 30 || pictures[i].y < pictures[i].originalY - 30)) {
+            if ((pictures[i].x > pictures[i].originalX + 30 || pictures[i].x < pictures[i].originalX - 30) ||
+                (pictures[i].y > pictures[i].originalY + 30 || pictures[i].y < pictures[i].originalY - 30)) {
 
                 pictures[i].x = pictures[i].mixedX;
                 pictures[i].y = pictures[i].mixedY;
-         
+
             }
             else {
 
                 pictures[i].x = pictures[i].originalX;
                 pictures[i].y = pictures[i].originalY;
                 pictures[i].onRightPosition = true;
-                onRightPositionArray.push(pictures[i]);     
+                onRightPositionArray.push(pictures[i]);
             }
         }
 
         if (onRightPositionArray.length == l) {
+
             updateScoreBoard();
             done = true;
             timeBoard.innerHTML = '0 : 0';
-            setTimeout(drawCompletedScreen, 200 );
-            resumeBtn.style.display = 'none';
-            nextBtn.style.display = 'block';
-            pauseBtn.style.display = 'none';
+            setTimeout(drawCompletedScreen, 200);
+            buttons.resumeBtn.style.display = 'none';
+            buttons.nextBtn.style.display = 'block';
+            buttons.pauseBtn.style.display = 'none';
         }
     }
 }
@@ -428,118 +417,8 @@ function animateRightPosition(picture) {
 
 }
 
-
-
-
-function drawGameOverScreen() {
-
-    pictures = [];
-    var imageObj = new Image();
-
-    imageObj.onload = function () {
-        ctx.drawImage(imageObj, 0, 0);
-    };
-
-    imageObj.src = 'Content/images/gameover.jpg';
-}
-
-function drawCompletedScreen() {
-
-    clear(ctx);
-    var imageObj = new Image();
-    var snd = new Audio("Content/sounds/compl.mp3");
-    pictures = [];
-    isDrag = false;
-
-    imageObj.src = 'Content/images/level-complete.jpg';
-
-    imageObj.onload = function () {
-        ctx.drawImage(imageObj, 0, 0);
-    };
-
-    snd.play();
-}
-
-function draw() {
-
-    if (canvasValid == false) {
-        ctx.save();
-        clear(ctx);
-
-        var l = pictures.length;
-        for (var i = 0; i < l; i++) {
-
-            if (demo == true) {
-
-                drawshape(ctx, pictures[i], pictures[i].imgSource);
-            } else {
-
-                var img = new Image();
-                img.src = pictures[i].imgSource;
-
-                ctx.drawImage(img, pictures[i].x, pictures[i].y, pictures[i].w, pictures[i].h);
-            }
-  
-            drawFrame();
-        }
-
-        // stroke along the edge of the selected box
-        if (mySel != null) {
-            ctx.strokeStyle = mySelColor;
-            ctx.lineWidth = mySelWidth;
-            ctx.strokeRect(mySel.x, mySel.y, mySel.w, mySel.h);
-        }
-
-        ctx.restore();
-        canvasValid = true;
-    }
-}
-
 function clear(c) {
     c.clearRect(0, 0, WIDTH, HEIGHT);
-}
-
-
-function drawshape(context, shape, imgSrc) {
-
-  if (shape.x > WIDTH || shape.y > HEIGHT) return;
-    if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
-
-    var img = new Image();
-    img.src = imgSrc;
-
-    img.onload = function () {
-
-        context.drawImage(img, shape.x, shape.y, shape.w, shape.h);
-    };
-
-}
-
-function drawshapeRect(context, shape, fill) {
-    context.fillStyle = fill;
-
-    if (shape.x > WIDTH || shape.y > HEIGHT) return;
-    if (shape.x + shape.w < 0 || shape.y + shape.h < 0) return;
-
-    context.fillRect(shape.x, shape.y, shape.w, shape.h);
-}
-
-function drawFrame() {
-
-    for (var i = 0; i < 400; i += 100) {
-
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, 400);
-        ctx.stroke();
-
-        if (i < 400) {
-            ctx.beginPath();
-            ctx.moveTo(0, i);
-            ctx.lineTo(300, i);
-            ctx.stroke();
-        }
-    }
 }
 
 function getMouse(e) {
@@ -596,20 +475,17 @@ function myMove(e) {
     }
 }
 
-
 function myDown(e) {
-   
+
     isClicked = true;
 
-    if (done == false && isPaused == false && timeOver ==false) {
+    if (done == false && isPaused == false && timeOver == false) {
         getMouse(e);
         var l = pictures.length;
         for (var i = l - 1; i >= 0; i--) {
 
             drawshapeRect(gctx, pictures[i], 'black');
             var imageData = gctx.getImageData(mx, my, 10, 10);
-
-            var index = (mx + my * imageData.width) * 4;
 
             if (imageData.data[3] > 0) {
                 if ((pictures[i].x > pictures[i].originalX + 20 || pictures[i].x < pictures[i].originalX - 20) || (pictures[i].y > pictures[i].originalY + 20 || pictures[i].y < pictures[i].originalY - 20)) {
@@ -661,9 +537,180 @@ function myUp() {
     }
 }
 
-function invalidate() {
-    canvasValid = false;
-}
+var Level = (function () {
+
+    function Level(levelNumber) {
+
+        this.levelNumber = levelNumber;
+        this.level_points = "";
+        this.img_source = [];
+    }
+
+    Level.prototype = {
+
+        setLevelImages: function (response) {
+
+            this.img_source = response;
+
+
+            if (this.img_source.length == 0) {
+
+                alert("Failed to load image data please try again !")
+                location.reload();
+
+            } else {
+
+                startGame();
+            }
+
+        },
+        getLevel: function () {
+            var that = this;
+            var data = "{id :" + this.levelNumber + "}";
+
+            $.ajax({
+                type: "POST",
+                url: "Default.aspx/GetLevel",
+                data: data,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+
+                    var level_img_type;
+
+                    if (parseInt(response.d[0]) < 9) {
+
+                        level_img_type = response.d[0];
+                        that.level_points = parseInt(response.d[1]);
+
+                    } else {
+
+                        level_img_type = 8;
+                        that.level_points = 50;
+                    }
+                    that.getLevelImages(response.d[0]);
+
+                },
+                failure: function (response) {
+                    alert("Error in loading images, Please try again!");
+                }
+            });
+
+        },
+        getLevelImages: function (levelLbl) {
+
+            var that = this;
+            var data = "{imgTypeId :" + levelLbl + "}";
+            $.ajax({
+                type: "POST",
+                url: "Default.aspx/GetImage",
+                data: data,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    that.setLevelImages(response.d);
+                },
+                failure: function (response) {
+                    alert("Error in loading images, Please try again!");
+                }
+            });
+        }
+    };
+
+    return Level;
+
+}());
+
+var Button = (function () {
+
+    function Button() {
+
+        this.startBtn = document.getElementById('button-start');
+        console.log(document.getElementById('button-start'));
+        this.infoBtn = document.getElementById('button-info');
+        this.exitBtn = document.getElementById('button-exit');
+        this.pauseBtn = document.getElementById('button-pause');
+        this.resumeBtn = document.getElementById('button-resume');
+        this.nextBtn = document.getElementById('button-next');
+        this.playAgainBtn = document.getElementById('button-play-again');
+
+    }
+    Button.prototype.setButtons = function () {
+
+        console.log(this.startBtn);
+
+        this.startBtn.addEventListener('click', function () { btnClicked('start') }, false);
+        this.infoBtn.addEventListener('click', function () { btnClicked('info') }, false);
+        this.exitBtn.addEventListener('click', function () { btnClicked('exit') }, false);
+        this.pauseBtn.addEventListener('click', function () { btnClicked('pause') }, false);
+        this.resumeBtn.addEventListener('click', function () { btnClicked('resume') }, false);
+        this.nextBtn.addEventListener('click', function () { btnClicked('next') }, false);
+        this.playAgainBtn.addEventListener('click', function () { btnClicked('playAgain') }, false);
+
+    }
+
+    function btnClicked(btnName) {
+
+
+
+        if (btnName === 'start') {
+
+            var snd = new Audio("Content/sounds/in.mp3");
+            snd.play();
+
+            buttons.pauseBtn.style.display = 'block';
+            buttons.exitBtn.style.display = 'block';
+            buttons.startBtn.style.display = 'none';
+            buttons.infoBtn.style.display = 'none';
+            init();
+        }
+        if (btnName === 'pause') {
+
+            buttons.pauseBtn.style.display = 'none';
+            buttons.resumeBtn.style.display = 'block';
+            isPaused = true;
+        }
+        if (btnName === 'resume') {
+
+            buttons.pauseBtn.style.display = 'block';
+            buttons.resumeBtn.style.display = 'none';
+            isPaused = false;
+        }
+        if (btnName === 'exit') {
+
+            location.reload();
+        }
+        if (btnName === 'next') {
+
+            buttons.pauseBtn.style.display = 'block';
+            buttons.exitBtn.style.display = 'block';
+            buttons.nextBtn.style.display = 'none';
+            clearTimeout(counter);
+
+            init();
+            done = false;
+        }
+        if (btnName === 'playAgain') {
+
+            buttons.pauseBtn.style.display = 'block';
+            buttons.exitBtn.style.display = 'block';
+            buttons.playAgainBtn.style.display = 'none';
+            done = false;
+            scoreBoard.innerHTML = '0';
+            levelLbl.innerHTML = '0';
+            timeOver = false;
+
+            clearTimeout(counter);
+            init();
+        }
+    }
+
+
+    return Button;
+
+
+
+}());
 
 function updateTimeBoard() {
 
@@ -687,6 +734,12 @@ function updateTimeBoard() {
     }
 };
 
+function loadTimeBoard(nameTextBoxId) {
+
+    var nameTextBoxElm = document.getElementById(nameTextBoxId);
+    timeBoard = nameTextBoxElm;
+
+}
 
 function gameOver() {
 
@@ -700,8 +753,8 @@ function gameOver() {
     points = 0;
     clear(ctx);
     drawGameOverScreen();
-    pauseBtn.style.display = 'none';
-    playAgainBtn.style.display = 'block';
+    buttons.pauseBtn.style.display = 'none';
+    buttons.playAgainBtn.style.display = 'block';
     isDrag = false;
 
     var snd = new Audio("Content/sounds/gameOver.mp3");
@@ -710,22 +763,15 @@ function gameOver() {
 }
 
 function updateScoreBoard() {
+    console.log('lvl');
+    console.log(levelObject.levelNumber);
 
-
-   
-    points += level_points+ seconds;
-    console.log(seconds);
+    points += levelObject.level_points + seconds;
+    console.log('seconds' + seconds);
 
     scoreBoard.innerHTML = points;
-    levelBoard.innerHTML = level;
-}
 
-
-function loadTimeBoard(nameTextBoxId) {
-
-    var nameTextBoxElm = document.getElementById(nameTextBoxId);
-    timeBoard = nameTextBoxElm;
-
+    levelLbl.innerHTML = levelObject.levelNumber;
 }
 
 function loadScoreBoard(nameTextBoxId) {
@@ -735,19 +781,26 @@ function loadScoreBoard(nameTextBoxId) {
 
 }
 
-function loadLevel(nameTextBoxId) {
+function SaveScores(scoreLabel) {
 
 
-    var nameTextBoxElm = document.getElementById(nameTextBoxId);
-    levelBoard = nameTextBoxElm;
-
+    $.ajax({
+        type: "POST",
+        async: false,
+        url: "Default.aspx/SaveScores",
+        data: JSON.stringify({ score: scoreLabel }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        failure: function (response) {
+            alert("Error in saving results!");
+        }
+    });
 }
-
 
 window.onbeforeunload = function () {
 
     if (points !== 0) {
         SaveScores(points);
 
-    }   
+    }
 }

@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href='http://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'/>
     <script type="text/javascript" src="Scripts/GameLogic/game.js"></script>
-    <script type="text/javascript" src="Scripts/GameLogic/ajaxRequests.js"></script>
     <title><%: Page.Title %> -Puzzle Memory game</title>
 
 
